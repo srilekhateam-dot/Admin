@@ -114,11 +114,19 @@
   /* Detail modal */
   .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:999;padding:20px;}
   .modal-overlay.open{display:flex;}
-  .modal-box{background:#fff;width:100%;max-width:680px;max-height:88vh;border-radius:16px;overflow-y:auto;}
+  .modal-box{background:#fff;width:100%;max-width:680px;max-height:88vh;border-radius:16px;overflow-y:auto;display:flex;flex-direction:column;}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;}
   .modal-head h3{font-family:'Fraunces',serif;font-size:1.15rem;}
   .modal-close{cursor:pointer;font-size:20px;color:var(--muted);background:none;border:none;}
-  .modal-body{padding:20px 22px;}
+  .modal-body{padding:20px 22px;flex:1;}
+  .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;background:#fff;z-index:2;}
+  .modal-footer-left{display:flex;gap:8px;align-items:center;}
+  .btn-del-submission{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:transparent;font-family:inherit;display:flex;align-items:center;gap:6px;}
+  .btn-del-submission:hover{background:var(--red);color:#fff;}
+  .btn-del-permanent{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--red);font-family:inherit;display:flex;align-items:center;gap:6px;}
+  .btn-del-permanent:hover{background:#b91c1c;}
+  .btn-modal-close{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);color:var(--muted);background:#fff;font-family:inherit;}
+  .btn-modal-close:hover{background:var(--bg);}
   .d-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
   .mc{background:var(--bg);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border);}
   .mc-l{font-size:9.5px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
@@ -130,6 +138,96 @@
   .dv{color:var(--muted);font-size:12.5px;}
   .del-banner{background:var(--red-light);border:1.5px solid #fca5a5;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;color:var(--red);font-size:13px;font-weight:600;}
   
+  /* Block / Restrict */
+  .btn-block{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:transparent;flex-shrink:0;}
+  .btn-block:hover{background:var(--red);color:#fff;}
+  .btn-unblock{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--teal);color:var(--teal);background:transparent;flex-shrink:0;}
+  .btn-unblock:hover{background:var(--teal);color:#fff;}
+  .acct-blocked-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;background:var(--red-light);color:var(--red);border:1px solid #fca5a5;letter-spacing:0.5px;text-transform:uppercase;}
+
+  /* Settings tab */
+  .settings-section{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:1px solid var(--border);padding:24px;margin-bottom:20px;}
+  .settings-section h3{font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:4px;}
+  .settings-section p{font-size:13px;color:var(--muted);margin-bottom:18px;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);gap:12px;}
+  .toggle-info{flex:1;}
+  .toggle-info strong{display:block;font-size:14px;margin-bottom:2px;}
+  .toggle-info span{font-size:12.5px;color:var(--muted);}
+  .toggle-switch{position:relative;width:50px;height:26px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:26px;transition:0.3s;}
+  .toggle-slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+  input:checked + .toggle-slider{background:var(--red);}
+  input:checked + .toggle-slider:before{transform:translateX(24px);}
+  .toggle-status{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;padding:4px 10px;border-radius:20px;display:inline-block;}
+  .toggle-status.open{background:var(--teal-light);color:var(--teal-dark);}
+  .toggle-status.closed{background:var(--red-light);color:var(--red);}
+
+  /* Restricted users list */
+  .restricted-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border:1.5px solid #fca5a5;border-radius:var(--radius-sm);margin-bottom:8px;background:var(--red-light);}
+  .restricted-av{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+  .restricted-info{flex:1;min-width:0;}
+  .restricted-email{font-weight:600;font-size:13.5px;color:var(--text);}
+  .restricted-meta{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  /* Add-restrict form */
+  .restrict-form{display:flex;gap:8px;margin-bottom:16px;}
+  .restrict-form input{flex:1;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;background:#fff;outline:none;font-family:inherit;}
+  .restrict-form input:focus{border-color:var(--red);}
+  .btn-restrict-add{padding:10px 18px;border:none;border-radius:var(--radius-sm);background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+  .btn-restrict-add:hover{background:#b91c1c;}
+
+  /* ── Comments in admin ── */
+  .cmt-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;transition:all 0.15s;}
+  .cmt-item:hover{border-color:var(--teal);}
+  .cmt-item.flagged{border-color:#fca5a5;background:var(--red-light);}
+  .cmt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .cmt-meta{display:flex;align-items:center;gap:8px;}
+  .cmt-av{width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .cmt-name{font-weight:700;font-size:13px;color:var(--text);}
+  .cmt-phone{font-size:11.5px;color:var(--muted);}
+  .cmt-time{font-size:11px;color:var(--muted);white-space:nowrap;}
+  .cmt-cat{display:inline-block;background:var(--teal-light);color:var(--teal-dark);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;margin-bottom:6px;}
+  .cmt-text{font-size:13.5px;color:#374151;line-height:1.6;}
+  .cmt-actions{display:flex;gap:6px;margin-top:10px;}
+  .cmt-del-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #fca5a5;color:var(--red);background:transparent;font-family:inherit;}
+  .cmt-del-btn:hover{background:var(--red);color:#fff;}
+  .cmt-flag-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--amber);color:var(--amber);background:transparent;font-family:inherit;}
+  .cmt-flag-btn:hover{background:var(--amber-light);}
+
+  /* ── Messages tab ── */
+  .msg-compose{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:1px solid var(--border);padding:22px;margin-bottom:18px;}
+  .msg-compose h3{font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:4px;}
+  .msg-compose p{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .msg-target-select{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:inherit;background:#fff;outline:none;width:100%;margin-bottom:10px;}
+  .msg-target-select:focus{border-color:var(--teal);}
+  .msg-profile-select{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:inherit;background:#fff;outline:none;width:100%;margin-bottom:10px;display:none;}
+  .msg-profile-select.visible{display:block;}
+  .msg-subject-input{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:inherit;background:#fff;outline:none;width:100%;margin-bottom:10px;}
+  .msg-subject-input:focus{border-color:var(--teal);}
+  .msg-body-input{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;font-family:inherit;background:#fff;outline:none;width:100%;min-height:100px;resize:vertical;margin-bottom:12px;line-height:1.6;}
+  .msg-body-input:focus{border-color:var(--teal);}
+  .btn-send-msg{padding:10px 24px;border:none;border-radius:var(--radius-sm);background:var(--teal);color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-send-msg:hover{background:var(--teal-dark);}
+  .msg-sent-ok{display:none;font-size:12.5px;color:#065f46;background:#ecfdf5;padding:9px 14px;border-radius:8px;margin-top:10px;font-weight:600;}
+  
+  .msg-history{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:1px solid var(--border);padding:22px;}
+  .msg-history h3{font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:4px;}
+  .msg-history-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .msg-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .msg-filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:inherit;transition:all 0.2s;}
+  .msg-filter-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .msg-item{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;background:#fff;transition:all 0.15s;}
+  .msg-item:hover{border-color:var(--teal);box-shadow:0 2px 8px rgba(26,158,143,0.08);}
+  .msg-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .msg-item-to{font-weight:700;font-size:13px;color:var(--text);}
+  .msg-item-time{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+  .msg-item-subject{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .msg-item-body{font-size:12.5px;color:var(--muted);line-height:1.5;white-space:pre-wrap;}
+  .msg-item-profile-tag{display:inline-flex;align-items:center;gap:4px;background:var(--teal-light);color:var(--teal-dark);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;margin-bottom:6px;}
+  .msg-delete-btn{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #fca5a5;color:var(--red);background:var(--red-light);font-family:inherit;margin-top:8px;}
+  .msg-delete-btn:hover{background:var(--red);color:#fff;}
+
   @media(max-width:640px){
     .stats-grid{grid-template-columns:1fr 1fr;}
     .d-grid{grid-template-columns:1fr;}
@@ -195,6 +293,10 @@
       <div class="tab active" data-tab="accounts" onclick="switchTab('accounts')">By Account</div>
       <div class="tab" data-tab="deleted" onclick="switchTab('deleted')">Deleted Profiles</div>
       <div class="tab" data-tab="orphans" onclick="switchTab('orphans')">Orphan Submissions</div>
+      <div class="tab" data-tab="restricted" onclick="switchTab('restricted')">🚫 Restricted</div>
+      <div class="tab" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</div>
+      <div class="tab" data-tab="messages" onclick="switchTab('messages')">✉️ Messages</div>
+      <div class="tab" data-tab="comments" onclick="switchTab('comments')">💬 Comments</div>
     </div>
 
     <!-- Search -->
@@ -220,6 +322,7 @@
       <button class="modal-close" onclick="closeDetailModal()">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
   </div>
 </div>
 
@@ -227,7 +330,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs, query, where }
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, serverTimestamp, addDoc, orderBy }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -265,6 +368,8 @@ let accountsData = [];       // [{uid, email, profiles:[...], createdAt}]
 let allSubmissions = {};     // { userId: submissionData }
 let orphanSubmissions = [];  // submissions with no accountUid
 let deletedProfiles = [];    // submissions marked deletedByUser:true
+let restrictedUsers = [];    // [{email, reason, restrictedAt}]
+let registrationClosed = false; // from Firestore settings doc
 let currentTab = 'accounts';
 
 // ─── AUTH FLOW ────────────────────────────────────────────
@@ -360,6 +465,31 @@ async function loadAllData() {
         orphanSubmissions.push(d);
       }
     });
+
+    // 2b. Recover "ghost" accounts — users who registered via profile page
+    //     before the accounts/{uid} write was added. They have submissions
+    //     with an accountUid but no accounts doc. Show them so they're visible.
+    const knownUids = new Set(accountsData.map(a => a.uid));
+    const ghostMap = {}; // uid → { email, profiles[] }
+    Object.values(allSubmissions).forEach(sub => {
+      if (sub.accountUid && !knownUids.has(sub.accountUid)) {
+        if (!ghostMap[sub.accountUid]) {
+          ghostMap[sub.accountUid] = { uid: sub.accountUid, email: sub.email || '(no email)', createdAt: null, profiles: [], _ghost: true };
+        }
+        if (!sub.deletedByUser) {
+          ghostMap[sub.accountUid].profiles.push({ userId: sub._id, name: sub.name, _profileDocId: sub._id });
+        }
+      }
+    });
+    Object.values(ghostMap).forEach(g => accountsData.push(g));
+
+    // Auto-heal: write the missing accounts/{uid} doc for ghost accounts
+    // so they appear correctly on all future loads
+    for (const g of Object.values(ghostMap)) {
+      try {
+        await setDoc(doc(db, "accounts", g.uid), { email: g.email, createdAt: serverTimestamp(), _recovered: true }, { merge: true });
+      } catch(e) { /* best-effort, non-blocking */ }
+    }
     
     // Update stats
     const totalActive = Object.values(allSubmissions).filter(s => !s.deletedByUser).length;
@@ -367,6 +497,17 @@ async function loadAllData() {
     document.getElementById('stat-active').textContent = totalActive;
     document.getElementById('stat-deleted').textContent = deletedProfiles.length;
     document.getElementById('stat-orphan').textContent = orphanSubmissions.length;
+
+    // 3. Fetch restricted users
+    const restrictedSnap = await getDocs(collection(db, "restrictedUsers"));
+    restrictedUsers = [];
+    restrictedSnap.forEach(r => restrictedUsers.push({ id: r.id, ...r.data() }));
+
+    // 4. Fetch settings
+    try {
+      const settingsDoc = await getDoc(doc(db, "settings", "global"));
+      registrationClosed = settingsDoc.exists() ? !!settingsDoc.data().registrationClosed : false;
+    } catch(e) { registrationClosed = false; }
     
     renderCurrentTab();
   } catch(e) {
@@ -387,6 +528,10 @@ window.renderCurrentTab = function() {
   if (currentTab === 'accounts') renderAccounts();
   else if (currentTab === 'deleted') renderDeleted();
   else if (currentTab === 'orphans') renderOrphans();
+  else if (currentTab === 'restricted') renderRestricted();
+  else if (currentTab === 'settings') renderSettings();
+  else if (currentTab === 'messages') renderMessages();
+  else if (currentTab === 'comments') renderAdminComments();
 };
 
 function getSearchQ() {
@@ -419,8 +564,8 @@ function renderAccounts() {
   area.innerHTML = filtered.map(acct => {
     const initials = (acct.email[0]||'?').toUpperCase();
     const activeCount = acct.profiles.length;
-    // Count deleted for this account
     const deletedCount = deletedProfiles.filter(d => d.accountUid === acct.uid).length;
+    const isBlocked = restrictedUsers.some(r => r.email.toLowerCase() === acct.email.toLowerCase());
     
     const activeRows = acct.profiles.map(p => {
       const sub = allSubmissions[p.userId] || {};
@@ -432,23 +577,31 @@ function renderAccounts() {
       .map(d => buildProfileRow(d, d, true))
       .join('');
     
+    const safeEmail = acct.email.toLowerCase();
+    const isSelf = auth.currentUser && auth.currentUser.email.toLowerCase() === safeEmail;
+    const blockBtn = (isSelf || safeEmail === '(no email)') ? '' : isBlocked
+      ? `<button class="btn-unblock" onclick="event.stopPropagation();unblockAccount('${safeEmail}')">Unblock</button>`
+      : `<button class="btn-block" onclick="event.stopPropagation();blockAccount('${safeEmail}')">Block</button>`;
+    
     return `
       <div class="account-group">
         <div class="account-header" onclick="toggleAcct(this)">
           <div class="account-info">
-            <div class="acct-av">${initials}</div>
+            <div class="acct-av" style="${isBlocked?'background:var(--red);':''}">${initials}</div>
             <div>
-              <div class="acct-email">${escapeHtml(acct.email)}</div>
+              <div class="acct-email">${escapeHtml(acct.email)} ${isBlocked?'<span class="acct-blocked-badge">Blocked</span>':''}${acct._ghost?'<span class="acct-blocked-badge" style="background:#fef9c3;color:#854d0e;border-color:#fde047;">No Account Doc</span>':''}</div>
               <div class="acct-meta">UID: ${acct.uid.slice(0,14)}…</div>
             </div>
           </div>
           <div class="acct-counts">
             <span class="count-pill active">${activeCount} active</span>
             ${deletedCount>0?`<span class="count-pill deleted">${deletedCount} deleted</span>`:''}
+            ${blockBtn}
             <span class="chevron">▾</span>
           </div>
         </div>
         <div class="account-body">
+          ${isBlocked ? '<div style="padding:8px 14px;font-size:12px;color:var(--red);font-weight:600;background:var(--red-light);border-radius:8px;margin-bottom:8px;">⛔ This account is currently blocked from signing in.</div>' : ''}
           ${activeRows || '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">No active profiles</div>'}
           ${deletedRows ? '<div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--red);padding:10px 4px 6px;letter-spacing:0.6px;">Deleted by User</div>'+deletedRows : ''}
         </div>
@@ -568,11 +721,153 @@ function renderOrphans() {
   </div>`;
 }
 
+
+
+// ─── RESTRICTED USERS ─────────────────────────────────────
+function renderRestricted() {
+  const area = document.getElementById('content-area');
+  const q = getSearchQ();
+  const filtered = restrictedUsers.filter(r => !q || (r.email||'').toLowerCase().includes(q));
+  
+  area.innerHTML = `
+    <div class="settings-section">
+      <h3>🚫 Restricted Users</h3>
+      <p>Blocked users cannot sign in or submit new profiles. Add an email below to restrict access.</p>
+      <div class="restrict-form">
+        <input type="email" id="restrict-email-input" placeholder="user@example.com to restrict…" onkeydown="if(event.key==='Enter')addRestrictedUser()"/>
+        <button class="btn-restrict-add" onclick="addRestrictedUser()">+ Block User</button>
+      </div>
+      ${filtered.length === 0
+        ? `<div style="text-align:center;padding:30px;color:var(--muted);font-size:14px;">No restricted users${q ? ' matching "'+escapeHtml(q)+'"' : ''}.</div>`
+        : filtered.map(r => {
+            const initials = (r.email||'?')[0].toUpperCase();
+            return `
+              <div class="restricted-row">
+                <div class="restricted-av">${initials}</div>
+                <div class="restricted-info">
+                  <div class="restricted-email">${escapeHtml(r.email)}</div>
+                  <div class="restricted-meta">Restricted ${r.restrictedAt ? formatTs(r.restrictedAt) : '—'}${r.reason ? ' · Reason: '+escapeHtml(r.reason) : ''}</div>
+                </div>
+                <button class="btn-unblock" onclick="removeRestrictedUser('${escapeHtml(r.id)}')">Unblock</button>
+              </div>
+            `;
+          }).join('')
+      }
+    </div>
+  `;
+}
+
+window.addRestrictedUser = async function() {
+  const input = document.getElementById('restrict-email-input');
+  const email = (input?.value || '').trim().toLowerCase();
+  if (!email || !/\S+@\S+\.\S+/.test(email)) { alert('Enter a valid email address.'); return; }
+  if (auth.currentUser && auth.currentUser.email.toLowerCase() === email) { alert('You cannot restrict your own account.'); return; }
+  const docId = email.replace(/[@.]/g, '_');
+  try {
+    await setDoc(doc(db, "restrictedUsers", docId), { email, restrictedAt: serverTimestamp(), reason: '' });
+    if (!restrictedUsers.find(r => r.id === docId)) {
+      restrictedUsers.push({ id: docId, email, restrictedAt: null, reason: '' });
+    }
+    if (input) input.value = '';
+    renderRestricted();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+window.removeRestrictedUser = async function(docId) {
+  if (!confirm('Unblock this user? They will be able to sign in again.')) return;
+  try {
+    await deleteDoc(doc(db, "restrictedUsers", docId));
+    restrictedUsers = restrictedUsers.filter(r => r.id !== docId);
+    renderRestricted();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+// ─── SETTINGS TAB ─────────────────────────────────────────
+function renderSettings() {
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="settings-section">
+      <h3>⚙️ Registration Settings</h3>
+      <p>Control whether new users can create accounts on NutriPlan. Existing users are not affected.</p>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <strong>Disable New Registrations</strong>
+          <span>When ON, new account creation is blocked. Users who try to register will see an error message.</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="reg-toggle" ${registrationClosed ? 'checked' : ''} onchange="toggleRegistration(this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div style="margin-top:10px;">
+        <span class="toggle-status ${registrationClosed ? 'closed' : 'open'}" id="reg-status-badge">
+          ${registrationClosed ? '🔒 Registrations Closed' : '✅ Registrations Open'}
+        </span>
+      </div>
+    </div>
+
+    <div class="settings-section" style="margin-top:0;">
+      <h3>ℹ️ How These Features Work</h3>
+      <p style="margin-bottom:0;">
+        <strong>Restricting a user</strong> writes their email to the <code>restrictedUsers</code> Firestore collection. 
+        On sign-in and account creation, the app checks this collection and blocks access with a clear error message.<br/><br/>
+        <strong>Disabling registrations</strong> sets <code>settings/global.registrationClosed = true</code> in Firestore. 
+        The registration form checks this flag before allowing new account creation. Existing users can still sign in normally.
+      </p>
+    </div>
+  `;
+}
+
+window.toggleRegistration = async function(closed) {
+  try {
+    await setDoc(doc(db, "settings", "global"), { registrationClosed: closed }, { merge: true });
+    registrationClosed = closed;
+    const badge = document.getElementById('reg-status-badge');
+    if (badge) {
+      badge.className = 'toggle-status ' + (closed ? 'closed' : 'open');
+      badge.textContent = closed ? '🔒 Registrations Closed' : '✅ Registrations Open';
+    }
+  } catch(e) {
+    alert('Failed to update setting: ' + e.message);
+    // Revert toggle
+    const el = document.getElementById('reg-toggle');
+    if (el) el.checked = !closed;
+  }
+};
+
+// Also show block button on account rows
+window.blockAccount = async function(email) {
+  if (!email || email === '(no email)') { alert('Cannot restrict this account.'); return; }
+  if (auth.currentUser && auth.currentUser.email.toLowerCase() === email.toLowerCase()) { alert('You cannot block your own account.'); return; }
+  if (!confirm(`Block "${email}"?\n\nThey will not be able to sign in.`)) return;
+  const docId = email.replace(/[@.]/g, '_');
+  try {
+    await setDoc(doc(db, "restrictedUsers", docId), { email, restrictedAt: serverTimestamp(), reason: '' });
+    if (!restrictedUsers.find(r => r.id === docId)) {
+      restrictedUsers.push({ id: docId, email, restrictedAt: null, reason: '' });
+    }
+    renderCurrentTab();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+window.unblockAccount = async function(email) {
+  if (!confirm(`Unblock "${email}"?\n\nThey will be able to sign in again.`)) return;
+  const docId = email.replace(/[@.]/g, '_');
+  try {
+    await deleteDoc(doc(db, "restrictedUsers", docId));
+    restrictedUsers = restrictedUsers.filter(r => r.id !== docId);
+    renderCurrentTab();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
 // ─── VIEW PROFILE MODAL ───────────────────────────────────
+let _modalUserId = null; // track which submission is open
+
 window.viewProfile = async function(userId) {
   const d = allSubmissions[userId];
   if (!d) { alert('Profile not found'); return; }
-  
+  _modalUserId = userId;
+
   document.getElementById('modal-title').textContent = d.name || 'Profile Details';
   const body = document.getElementById('modal-body');
   
@@ -632,6 +927,7 @@ window.viewProfile = async function(userId) {
       <div class="dst">Diet Preferences</div>
       ${row('Diet', d.diet_preference)}
       ${row('Meals/Day', d.meals_per_day)}
+      ${d.num_curries ? row('Curries/Day', d.num_curries) : ''}
       ${row('Eating Window', d.eating_window)}
       <div class="dr"><span class="dk">Meal Types</span><span class="dv">${tl(d.meal_types)}</span></div>
     </div>
@@ -642,13 +938,110 @@ window.viewProfile = async function(userId) {
       ${d.fruits?`<div class="dr"><span class="dk">Fruits</span><span class="dv">${tl(d.fruits)}</span></div>`:''}
       ${d.vegetables?`<div class="dr"><span class="dk">Vegetables</span><span class="dv">${tl(d.vegetables)}</span></div>`:''}
       ${d.nuts_seeds?`<div class="dr"><span class="dk">Nuts & Seeds</span><span class="dv">${tl(d.nuts_seeds)}</span></div>`:''}
+      ${d.food_dislikes?`<div class="dr"><span class="dk">Food Dislikes</span><span class="dv" style="color:#dc2626;">${escapeHtml(d.food_dislikes)}</span></div>`:''}
     </div>
     
     ${d.symptoms?`<div class="ds"><div class="dst">Symptoms</div>${tl(d.symptoms)}</div>`:''}
     ${d.comments?`<div class="ds"><div class="dst">Comments</div><p style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:#374151;">${escapeHtml(d.comments)}</p></div>`:''}
   `;
-  
+
+  // ── Footer: delete actions ──
+  const footer = document.getElementById('modal-footer');
+  const alreadyDeleted = !!d.deletedByUser;
+  footer.innerHTML = `
+    <div class="modal-footer-left">
+      ${!alreadyDeleted ? `
+        <button class="btn-del-submission" onclick="adminSoftDelete('${userId}')" title="Mark as deleted (user-visible soft delete)">
+          🗑 Mark Deleted
+        </button>` : `
+        <button class="btn-del-submission" onclick="adminRestoreSubmission('${userId}')" title="Restore this submission">
+          ↩ Restore
+        </button>`
+      }
+      <button class="btn-del-permanent" onclick="adminHardDelete('${userId}')" title="Permanently erase from Firestore — cannot be undone">
+        ⚠ Delete Permanently
+      </button>
+    </div>
+    <button class="btn-modal-close" onclick="closeDetailModal()">Close</button>
+  `;
+
   document.getElementById('detail-modal').classList.add('open');
+};
+
+// ─── ADMIN DELETE ACTIONS ─────────────────────────────────
+
+// Soft delete: marks deletedByUser=true so it shows in "Deleted" tab
+// but doesn't erase the data
+window.adminSoftDelete = async function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) return;
+  const name = d.name || userId;
+  if (!confirm(`Mark "${name}" as deleted?\n\nThis moves it to the Deleted Profiles tab. The data is kept but the user won't see it.`)) return;
+  try {
+    await setDoc(doc(db, "submissions", userId), {
+      deletedByUser: true,
+      deletedAt: serverTimestamp(),
+      deletedByEmail: auth.currentUser?.email || 'admin',
+      deletedByAdmin: true
+    }, { merge: true });
+    // Update local cache
+    allSubmissions[userId] = { ...d, deletedByUser: true, deletedByAdmin: true };
+    if (!deletedProfiles.find(p => p._id === userId)) {
+      deletedProfiles.push(allSubmissions[userId]);
+    }
+    // Remove from account profiles if linked
+    if (d.accountUid && d._profileDocId) {
+      try { await deleteDoc(doc(db, "accounts", d.accountUid, "profiles", d._profileDocId)); } catch(e) {}
+    }
+    closeDetailModal();
+    await loadAllData();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+// Restore: unmarks deletedByUser so it reappears in active profiles
+window.adminRestoreSubmission = async function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) return;
+  if (!confirm(`Restore "${d.name || userId}"?\n\nThis will make the profile active again.`)) return;
+  try {
+    await setDoc(doc(db, "submissions", userId), {
+      deletedByUser: false,
+      deletedAt: null,
+      deletedByAdmin: false
+    }, { merge: true });
+    allSubmissions[userId] = { ...d, deletedByUser: false };
+    deletedProfiles = deletedProfiles.filter(p => p._id !== userId);
+    closeDetailModal();
+    await loadAllData();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+// Hard delete: permanently erases submission from Firestore + profile subcollection doc
+window.adminHardDelete = async function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) return;
+  const name = d.name || userId;
+  const confirmed = confirm(`⚠️ PERMANENTLY DELETE "${name}"?\n\nThis cannot be undone. The submission and all its data will be erased from Firestore forever.\n\nType OK to confirm.`);
+  if (!confirmed) return;
+  try {
+    // Delete from submissions collection
+    await deleteDoc(doc(db, "submissions", userId));
+    // Delete profile doc from accounts subcollection if linked
+    if (d.accountUid) {
+      const profileDocId = d._profileDocId || userId;
+      try { await deleteDoc(doc(db, "accounts", d.accountUid, "profiles", profileDocId)); } catch(e) {}
+    }
+    // Update local caches
+    delete allSubmissions[userId];
+    deletedProfiles = deletedProfiles.filter(p => p._id !== userId);
+    orphanSubmissions = orphanSubmissions.filter(p => p._id !== userId);
+    // Remove from accountsData profiles arrays
+    accountsData.forEach(acct => {
+      acct.profiles = acct.profiles.filter(p => p.userId !== userId && p._profileDocId !== userId);
+    });
+    closeDetailModal();
+    renderCurrentTab();
+  } catch(e) { alert('Error: ' + e.message); }
 };
 
 window.closeDetailModal = function() {
@@ -658,6 +1051,297 @@ window.closeDetailModal = function() {
 document.getElementById('detail-modal').addEventListener('click', function(e) {
   if (e.target === this) closeDetailModal();
 });
+
+// ─── MESSAGES ─────────────────────────────────────────────
+let allMessages = []; // cached sent messages
+let msgFilterAccount = 'all';
+
+async function loadMessages() {
+  try {
+    const snap = await getDocs(query(collection(db, "adminMessages"), orderBy("sentAt", "desc")));
+    allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // For each message, try to find the matching inbox doc so we can delete it
+    for (const m of allMessages) {
+      if (m.toUid && !m._inboxId) {
+        try {
+          const inboxSnap = await getDocs(collection(db, "messages", m.toUid, "inbox"));
+          const match = inboxSnap.docs.find(d => {
+            const data = d.data();
+            return data.subject === m.subject && data.sentBy === m.sentBy &&
+              data.body === m.body;
+          });
+          if (match) m._inboxId = match.id;
+        } catch(e) { /* non-blocking */ }
+      }
+    }
+  } catch(e) { allMessages = []; }
+}
+
+function renderMessages() {
+  const area = document.getElementById('content-area');
+  
+  // Build account options for selector
+  const accountOptions = accountsData.map(a =>
+    `<option value="${escapeHtml(a.uid)}">${escapeHtml(a.email)}</option>`
+  ).join('');
+  
+  area.innerHTML = `
+    <div class="msg-compose">
+      <h3>📨 Send Message to User</h3>
+      <p>Messages are sent to an account. Since one account can have multiple profiles, you can optionally tag a specific profile so the user knows which one it's about.</p>
+      
+      <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Select Account</label>
+      <select class="msg-target-select" id="msg-acct-select" onchange="onMsgAccountChange()">
+        <option value="">— Choose an account —</option>
+        ${accountOptions}
+      </select>
+      
+      <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Tag a Specific Profile (optional)</label>
+      <select class="msg-profile-select" id="msg-profile-select">
+        <option value="">— All profiles / General message —</option>
+      </select>
+      
+      <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Subject</label>
+      <input type="text" class="msg-subject-input" id="msg-subject" placeholder="e.g. Your nutrition plan is ready"/>
+      
+      <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Message</label>
+      <textarea class="msg-body-input" id="msg-body" placeholder="Write your message to the user…"></textarea>
+      
+      <button class="btn-send-msg" onclick="sendAdminMessage()">Send Message ➤</button>
+      <div class="msg-sent-ok" id="msg-sent-ok">✅ Message sent successfully!</div>
+    </div>
+    
+    <div class="msg-history">
+      <h3>📋 Sent Messages</h3>
+      <div class="msg-history-sub">All messages sent from the admin to users.</div>
+      <div id="msg-history-list"><div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Loading messages…</div></div>
+    </div>
+  `;
+  
+  loadMessages().then(() => renderMessageHistory());
+}
+
+window.onMsgAccountChange = function() {
+  const uid = document.getElementById('msg-acct-select').value;
+  const profileSel = document.getElementById('msg-profile-select');
+  if (!uid) {
+    profileSel.innerHTML = '<option value="">— All profiles / General message —</option>';
+    profileSel.classList.remove('visible');
+    return;
+  }
+  const acct = accountsData.find(a => a.uid === uid);
+  if (!acct || !acct.profiles.length) {
+    profileSel.innerHTML = '<option value="">— No profiles found —</option>';
+    profileSel.classList.remove('visible');
+    return;
+  }
+  profileSel.innerHTML = '<option value="">— All profiles / General message —</option>' +
+    acct.profiles.map(p => {
+      const sub = allSubmissions[p.userId] || {};
+      const name = p.name || sub.name || p.userId;
+      return `<option value="${escapeHtml(p.userId)}">${escapeHtml(name)}</option>`;
+    }).join('');
+  profileSel.classList.add('visible');
+};
+
+window.sendAdminMessage = async function() {
+  const uid = document.getElementById('msg-acct-select').value;
+  const profileId = document.getElementById('msg-profile-select').value;
+  const subject = document.getElementById('msg-subject').value.trim();
+  const body = document.getElementById('msg-body').value.trim();
+  
+  if (!uid) { alert('Please select an account to send to.'); return; }
+  if (!subject) { alert('Please enter a subject.'); return; }
+  if (!body) { alert('Please enter a message.'); return; }
+  
+  const acct = accountsData.find(a => a.uid === uid);
+  const toEmail = acct ? acct.email : uid;
+  let profileName = '';
+  if (profileId) {
+    const p = acct?.profiles?.find(pr => pr.userId === profileId);
+    const sub = allSubmissions[profileId] || {};
+    profileName = p?.name || sub?.name || profileId;
+  }
+  
+  try {
+    const msgData = {
+      toUid: uid,
+      toEmail,
+      profileId: profileId || null,
+      profileName: profileName || null,
+      subject,
+      body,
+      sentAt: serverTimestamp(),
+      sentBy: auth.currentUser?.email || 'admin',
+      read: false
+    };
+    
+    // Write to adminMessages (admin history view)
+    await addDoc(collection(db, "adminMessages"), msgData);
+    // Write to user's inbox: messages/{uid}/inbox/{autoId}
+    await addDoc(collection(db, "messages", uid, "inbox"), msgData);
+    
+    // Reset form
+    document.getElementById('msg-subject').value = '';
+    document.getElementById('msg-body').value = '';
+    document.getElementById('msg-acct-select').value = '';
+    document.getElementById('msg-profile-select').innerHTML = '<option value="">— All profiles / General message —</option>';
+    document.getElementById('msg-profile-select').classList.remove('visible');
+    
+    const ok = document.getElementById('msg-sent-ok');
+    ok.style.display = 'block';
+    setTimeout(() => ok.style.display = 'none', 3000);
+    
+    await loadMessages();
+    renderMessageHistory();
+  } catch(e) { alert('Error sending message: ' + e.message); }
+};
+
+function renderMessageHistory() {
+  const list = document.getElementById('msg-history-list');
+  if (!list) return;
+  
+  if (allMessages.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">No messages sent yet.</div>`;
+    return;
+  }
+  
+  // Build filter buttons for accounts
+  const accounts = [...new Set(allMessages.map(m => m.toEmail))];
+  const filterBtns = `
+    <div class="msg-filter-row">
+      <button class="msg-filter-btn ${msgFilterAccount==='all'?'active':''}" onclick="setMsgFilter('all')">All</button>
+      ${accounts.map(e => `<button class="msg-filter-btn ${msgFilterAccount===e?'active':''}" onclick="setMsgFilter('${escapeHtml(e)}')">${escapeHtml(e)}</button>`).join('')}
+    </div>
+  `;
+  
+  const filtered = msgFilterAccount === 'all' ? allMessages : allMessages.filter(m => m.toEmail === msgFilterAccount);
+  
+  list.innerHTML = filterBtns + (filtered.length === 0
+    ? `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">No messages for this account.</div>`
+    : filtered.map(m => `
+      <div class="msg-item">
+        <div class="msg-item-head">
+          <div class="msg-item-to">To: ${escapeHtml(m.toEmail||m.toUid)}</div>
+          <div class="msg-item-time">${formatTs(m.sentAt)}</div>
+        </div>
+        ${m.profileName ? `<div class="msg-item-profile-tag">👤 Profile: ${escapeHtml(m.profileName)}</div>` : ''}
+        <div class="msg-item-subject">${escapeHtml(m.subject)}</div>
+        <div class="msg-item-body">${escapeHtml(m.body)}</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <button class="msg-delete-btn" onclick="deleteAdminMessage('${m.id}','${escapeHtml(m.toUid||'')}','${escapeHtml(m._inboxId||'')}')">🗑 Delete (Both)</button>
+          ${m._inboxId ? `<button class="msg-delete-btn" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;" onclick="deleteInboxMessage('${escapeHtml(m.toUid||'')}','${escapeHtml(m._inboxId)}')">📥 Remove from Inbox Only</button>` : ''}
+        </div>
+      </div>
+    `).join(''));
+}
+
+window.setMsgFilter = function(val) {
+  msgFilterAccount = val;
+  renderMessageHistory();
+};
+
+window.deleteAdminMessage = async function(msgId, toUid, inboxMsgId) {
+  if (!confirm('Delete this message?\n\nThis will remove it from admin history AND the user\'s inbox.')) return;
+  try {
+    // Delete from adminMessages (admin history)
+    await deleteDoc(doc(db, "adminMessages", msgId));
+    // Also delete from user's inbox
+    if (toUid && inboxMsgId) {
+      try { await deleteDoc(doc(db, "messages", toUid, "inbox", inboxMsgId)); } catch(e) { console.warn('Inbox delete failed:', e); }
+    }
+    allMessages = allMessages.filter(m => m.id !== msgId);
+    renderMessageHistory();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+// Delete a message only from the user's inbox (not admin history)
+window.deleteInboxMessage = async function(toUid, inboxMsgId) {
+  if (!confirm('Delete this message from the user\'s inbox only?\n(Admin history is kept.)')) return;
+  try {
+    await deleteDoc(doc(db, "messages", toUid, "inbox", inboxMsgId));
+    // Mark in local allMessages
+    const m = allMessages.find(x => x._inboxId === inboxMsgId);
+    if (m) m._inboxDeleted = true;
+    renderMessageHistory();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+// ─── ADMIN COMMENTS ────────────────────────────────────────
+async function renderAdminComments() {
+  const area = document.getElementById('content-area');
+  area.innerHTML = `<div class="loading"><div class="spinner"></div>Loading comments…</div>`;
+  
+  let comments = [];
+  try {
+    const snap = await getDocs(query(collection(db, "comments"), orderBy("submittedAt", "desc")));
+    snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
+  } catch(e) {
+    // Try without ordering if index missing
+    try {
+      const snap2 = await getDocs(collection(db, "comments"));
+      snap2.forEach(d => comments.push({ id: d.id, ...d.data() }));
+      comments.sort((a,b) => {
+        const ta = a.submittedAt?.seconds || 0;
+        const tb = b.submittedAt?.seconds || 0;
+        return tb - ta;
+      });
+    } catch(e2) { comments = []; }
+  }
+  
+  area.innerHTML = `
+    <div class="settings-section">
+      <h3>💬 User Comments & Queries</h3>
+      <p>All comments and queries submitted by users from the Comments page. You can delete or flag inappropriate ones.</p>
+      ${comments.length === 0
+        ? `<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">No comments found in Firestore.<br/><small style="font-size:11px;">Note: Comments are stored in the <code>comments</code> Firestore collection when submitted with Firestore integration.</small></div>`
+        : comments.map(c => {
+            const initials = (c.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+            const isFlagged = c.flagged === true;
+            return `
+              <div class="cmt-item ${isFlagged?'flagged':''}">
+                <div class="cmt-head">
+                  <div class="cmt-meta">
+                    <div class="cmt-av">${initials}</div>
+                    <div>
+                      <div class="cmt-name">${escapeHtml(c.name||'Anonymous')}</div>
+                      ${c.phone?`<div class="cmt-phone">📞 ${escapeHtml(c.phone)}</div>`:''}
+                      ${c.contact?`<div class="cmt-phone">📬 ${escapeHtml(c.contact)}</div>`:''}
+                    </div>
+                  </div>
+                  <div class="cmt-time">${c.timestamp||formatTs(c.submittedAt)||'—'}</div>
+                </div>
+                ${c.category?`<div class="cmt-cat">${escapeHtml(c.category)}</div>`:''}
+                <div class="cmt-text">${escapeHtml(c.query||c.text||'(no content)')}</div>
+                <div class="cmt-actions">
+                  <button class="cmt-del-btn" onclick="deleteComment('${c.id}')">🗑 Delete</button>
+                  <button class="cmt-flag-btn" onclick="flagComment('${c.id}',${!isFlagged})">
+                    ${isFlagged ? '✅ Unflag' : '⚠️ Flag'}
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')
+      }
+    </div>
+  `;
+}
+
+window.deleteComment = async function(id) {
+  if (!confirm('Permanently delete this comment?')) return;
+  try {
+    await deleteDoc(doc(db, "comments", id));
+    renderAdminComments();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
+window.flagComment = async function(id, flag) {
+  try {
+    await setDoc(doc(db, "comments", id), { flagged: flag }, { merge: true });
+    renderAdminComments();
+  } catch(e) { alert('Error: ' + e.message); }
+};
 
 // ─── HELPERS ──────────────────────────────────────────────
 function escapeHtml(str) {
