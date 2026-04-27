@@ -180,7 +180,6 @@
   /* ── Comments in admin ── */
   .cmt-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;transition:all 0.15s;}
   .cmt-item:hover{border-color:var(--teal);}
-  .cmt-item.flagged{border-color:#fca5a5;background:var(--red-light);}
   .cmt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;}
   .cmt-meta{display:flex;align-items:center;gap:8px;}
   .cmt-av{width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
@@ -189,11 +188,42 @@
   .cmt-time{font-size:11px;color:var(--muted);white-space:nowrap;}
   .cmt-cat{display:inline-block;background:var(--teal-light);color:var(--teal-dark);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;margin-bottom:6px;}
   .cmt-text{font-size:13.5px;color:#374151;line-height:1.6;}
-  .cmt-actions{display:flex;gap:6px;margin-top:10px;}
+  .cmt-actions{display:flex;gap:6px;margin-top:10px;align-items:center;}
   .cmt-del-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #fca5a5;color:var(--red);background:transparent;font-family:inherit;}
   .cmt-del-btn:hover{background:var(--red);color:#fff;}
-  .cmt-flag-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--amber);color:var(--amber);background:transparent;font-family:inherit;}
-  .cmt-flag-btn:hover{background:var(--amber-light);}
+  .cmt-reply-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--teal);color:var(--teal);background:transparent;font-family:inherit;display:flex;align-items:center;gap:4px;}
+  .cmt-reply-btn:hover{background:var(--teal);color:#fff;}
+
+  /* ── Inline Reply Box ── */
+  .cmt-reply-box{margin-top:12px;border-top:1.5px dashed var(--border);padding-top:12px;display:none;animation:fadeIn 0.2s ease;}
+  .cmt-reply-box.open{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+  .cmt-reply-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--teal-dark);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .cmt-reply-label::before{content:'↩';font-size:13px;}
+  .cmt-reply-to{font-size:11.5px;color:var(--muted);margin-bottom:8px;background:var(--teal-light);padding:6px 10px;border-radius:6px;border-left:3px solid var(--teal);}
+  .cmt-reply-account-select{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;outline:none;margin-bottom:8px;color:var(--text);}
+  .cmt-reply-account-select:focus{border-color:var(--teal);}
+  .cmt-reply-subject{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;outline:none;margin-bottom:8px;}
+  .cmt-reply-subject:focus{border-color:var(--teal);}
+  .cmt-reply-textarea{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;outline:none;min-height:80px;resize:vertical;line-height:1.5;}
+  .cmt-reply-textarea:focus{border-color:var(--teal);}
+  .cmt-reply-actions{display:flex;gap:8px;margin-top:8px;align-items:center;}
+  .cmt-reply-send{padding:7px 18px;border:none;border-radius:8px;background:var(--teal);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .cmt-reply-send:hover{background:var(--teal-dark);}
+  .cmt-reply-cancel{padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .cmt-reply-cancel:hover{background:var(--bg);}
+  .cmt-reply-ok{font-size:12px;color:#065f46;background:#ecfdf5;padding:6px 12px;border-radius:6px;font-weight:600;display:none;}
+
+  /* Previous admin replies shown under comment */
+  .cmt-admin-replies{margin-top:10px;}
+  .cmt-admin-reply-item{background:var(--teal-light);border:1.5px solid #a7f3d0;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;position:relative;}
+  .cmt-admin-reply-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+  .cmt-admin-reply-by{font-size:10.5px;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.5px;}
+  .cmt-admin-reply-time{font-size:10px;color:var(--muted);}
+  .cmt-admin-reply-subj{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .cmt-admin-reply-body{font-size:12.5px;color:#374151;line-height:1.5;}
+  .cmt-admin-reply-del{position:absolute;top:8px;right:8px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #fca5a5;color:var(--red);background:#fff;font-family:inherit;opacity:0.7;}
+  .cmt-admin-reply-del:hover{opacity:1;background:var(--red);color:#fff;border-color:var(--red);}
 
   /* ── Messages tab ── */
   .msg-compose{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:1px solid var(--border);padding:22px;margin-bottom:18px;}
@@ -364,14 +394,14 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Data store
-let accountsData = [];       // [{uid, email, profiles:[...], createdAt}]
-let allSubmissions = {};     // { userId: submissionData }
-let orphanSubmissions = [];  // submissions with no accountUid
-let deletedProfiles = [];    // submissions marked deletedByUser:true
-let restrictedUsers = [];    // [{email, reason, restrictedAt}]
-let registrationClosed = false; // from Firestore settings doc
-let formSubmissionClosed = false; // from Firestore settings doc
-let currentTab = 'accounts';
+let accountsData = [];
+let allSubmissions = {};
+let orphanSubmissions = [];
+let deletedProfiles = [];
+let restrictedUsers = [];
+let registrationClosed = false;
+let formSubmissionClosed = false;
+let currentTab = localStorage.getItem('np_admin_tab') || 'accounts';
 
 // ─── AUTH FLOW ────────────────────────────────────────────
 window.doSignIn = async () => {
@@ -416,13 +446,14 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('nav-email').textContent = user.email;
     return;
   }
-  // Admin authenticated
   localStorage.setItem('np_auth','signed-in');
   document.getElementById('login-view').style.display = 'none';
   document.getElementById('denied-view').style.display = 'none';
   document.getElementById('admin-view').style.display = 'block';
   document.getElementById('btn-signout').style.display = 'inline-block';
   document.getElementById('nav-email').textContent = user.email;
+  // Restore active tab highlight
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === currentTab));
   await loadAllData();
 });
 
@@ -432,13 +463,11 @@ async function loadAllData() {
   area.innerHTML = '<div class="loading"><div class="spinner"></div>Loading accounts & profiles…</div>';
   
   try {
-    // 1. Fetch all accounts
     const accountsSnap = await getDocs(collection(db, "accounts"));
     accountsData = [];
     for (const acctDoc of accountsSnap.docs) {
       const acctData = acctDoc.data();
       const uid = acctDoc.id;
-      // Fetch this account's profiles list
       const profilesSnap = await getDocs(collection(db, "accounts", uid, "profiles"));
       const profiles = [];
       profilesSnap.forEach(p => profiles.push({ ...p.data(), _profileDocId: p.id }));
@@ -450,7 +479,6 @@ async function loadAllData() {
       });
     }
     
-    // 2. Fetch all submissions
     const subsSnap = await getDocs(collection(db, "submissions"));
     allSubmissions = {};
     orphanSubmissions = [];
@@ -459,19 +487,12 @@ async function loadAllData() {
       const d = s.data();
       d._id = s.id;
       allSubmissions[s.id] = d;
-      if (d.deletedByUser === true) {
-        deletedProfiles.push(d);
-      }
-      if (!d.accountUid) {
-        orphanSubmissions.push(d);
-      }
+      if (d.deletedByUser === true) deletedProfiles.push(d);
+      if (!d.accountUid) orphanSubmissions.push(d);
     });
 
-    // 2b. Recover "ghost" accounts — users who registered via profile page
-    //     before the accounts/{uid} write was added. They have submissions
-    //     with an accountUid but no accounts doc. Show them so they're visible.
     const knownUids = new Set(accountsData.map(a => a.uid));
-    const ghostMap = {}; // uid → { email, profiles[] }
+    const ghostMap = {};
     Object.values(allSubmissions).forEach(sub => {
       if (sub.accountUid && !knownUids.has(sub.accountUid)) {
         if (!ghostMap[sub.accountUid]) {
@@ -484,27 +505,22 @@ async function loadAllData() {
     });
     Object.values(ghostMap).forEach(g => accountsData.push(g));
 
-    // Auto-heal: write the missing accounts/{uid} doc for ghost accounts
-    // so they appear correctly on all future loads
     for (const g of Object.values(ghostMap)) {
       try {
         await setDoc(doc(db, "accounts", g.uid), { email: g.email, createdAt: serverTimestamp(), _recovered: true }, { merge: true });
-      } catch(e) { /* best-effort, non-blocking */ }
+      } catch(e) {}
     }
     
-    // Update stats
     const totalActive = Object.values(allSubmissions).filter(s => !s.deletedByUser).length;
     document.getElementById('stat-accounts').textContent = accountsData.length;
     document.getElementById('stat-active').textContent = totalActive;
     document.getElementById('stat-deleted').textContent = deletedProfiles.length;
     document.getElementById('stat-orphan').textContent = orphanSubmissions.length;
 
-    // 3. Fetch restricted users
     const restrictedSnap = await getDocs(collection(db, "restrictedUsers"));
     restrictedUsers = [];
     restrictedSnap.forEach(r => restrictedUsers.push({ id: r.id, ...r.data() }));
 
-    // 4. Fetch settings
     try {
       const settingsDoc = await getDoc(doc(db, "settings", "global"));
       registrationClosed = settingsDoc.exists() ? !!settingsDoc.data().registrationClosed : false;
@@ -522,6 +538,7 @@ window.refreshAll = loadAllData;
 // ─── TABS ─────────────────────────────────────────────────
 window.switchTab = function(tab) {
   currentTab = tab;
+  localStorage.setItem('np_admin_tab', tab);
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   renderCurrentTab();
 };
@@ -723,8 +740,6 @@ function renderOrphans() {
   </div>`;
 }
 
-
-
 // ─── RESTRICTED USERS ─────────────────────────────────────
 function renderRestricted() {
   const area = document.getElementById('content-area');
@@ -872,7 +887,6 @@ window.toggleFormSubmission = async function(closed) {
   }
 };
 
-// Also show block button on account rows
 window.blockAccount = async function(email) {
   if (!email || email === '(no email)') { alert('Cannot restrict this account.'); return; }
   if (auth.currentUser && auth.currentUser.email.toLowerCase() === email.toLowerCase()) { alert('You cannot block your own account.'); return; }
@@ -898,7 +912,7 @@ window.unblockAccount = async function(email) {
 };
 
 // ─── VIEW PROFILE MODAL ───────────────────────────────────
-let _modalUserId = null; // track which submission is open
+let _modalUserId = null;
 
 window.viewProfile = async function(userId) {
   const d = allSubmissions[userId];
@@ -924,13 +938,11 @@ window.viewProfile = async function(userId) {
   
   body.innerHTML = `
     ${delBanner}
-    
     <div class="d-grid">
       <div class="mc"><div class="mc-l">BMI</div><div class="mc-v">${d.bmi||'—'}</div></div>
       <div class="mc"><div class="mc-l">Body Fat</div><div class="mc-v">${d.body_fat||'—'}</div></div>
       <div class="mc"><div class="mc-l">Calories</div><div class="mc-v">${d.daily_calories||'—'}</div></div>
     </div>
-    
     <div class="ds">
       <div class="dst">Submission Info</div>
       ${row('User ID', userId)}
@@ -938,7 +950,6 @@ window.viewProfile = async function(userId) {
       ${row('Account UID', d.accountUid || '(none)')}
       ${isForOther ? row('Plan For', `${d.plan_other_name} (${d.plan_other_relation})`) : row('Plan For', 'Self')}
     </div>
-    
     <div class="ds">
       <div class="dst">Personal Info</div>
       ${row('Name', d.name)}
@@ -953,13 +964,11 @@ window.viewProfile = async function(userId) {
       ${d.phone?row('Phone', d.phone):''}
       ${d.email?row('Email', d.email):''}
     </div>
-    
     <div class="ds">
       <div class="dst">Health</div>
       <div class="dr"><span class="dk">Conditions</span><span class="dv">${tl(d.health_conditions)}</span></div>
       ${d.allergies?`<div class="dr"><span class="dk">Allergies</span><span class="dv">${tl(d.allergies)}</span></div>`:''}
     </div>
-    
     <div class="ds">
       <div class="dst">Diet Preferences</div>
       ${row('Diet', d.diet_preference)}
@@ -968,7 +977,6 @@ window.viewProfile = async function(userId) {
       ${row('Eating Window', d.eating_window)}
       <div class="dr"><span class="dk">Meal Types</span><span class="dv">${tl(d.meal_types)}</span></div>
     </div>
-    
     <div class="ds">
       <div class="dst">Food Preferences</div>
       ${d.morning_drinks?`<div class="dr"><span class="dk">Morning Drinks</span><span class="dv">${tl(d.morning_drinks)}</span></div>`:''}
@@ -977,12 +985,10 @@ window.viewProfile = async function(userId) {
       ${d.nuts_seeds?`<div class="dr"><span class="dk">Nuts & Seeds</span><span class="dv">${tl(d.nuts_seeds)}</span></div>`:''}
       ${d.food_dislikes?`<div class="dr"><span class="dk">Food Dislikes</span><span class="dv" style="color:#dc2626;">${escapeHtml(d.food_dislikes)}</span></div>`:''}
     </div>
-    
     ${d.symptoms?`<div class="ds"><div class="dst">Symptoms</div>${tl(d.symptoms)}</div>`:''}
     ${d.comments?`<div class="ds"><div class="dst">Comments</div><p style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:#374151;">${escapeHtml(d.comments)}</p></div>`:''}
   `;
 
-  // ── Footer: delete actions ──
   const footer = document.getElementById('modal-footer');
   const alreadyDeleted = !!d.deletedByUser;
   footer.innerHTML = `
@@ -1006,9 +1012,6 @@ window.viewProfile = async function(userId) {
 };
 
 // ─── ADMIN DELETE ACTIONS ─────────────────────────────────
-
-// Soft delete: marks deletedByUser=true so it shows in "Deleted" tab
-// but doesn't erase the data
 window.adminSoftDelete = async function(userId) {
   const d = allSubmissions[userId];
   if (!d) return;
@@ -1021,12 +1024,10 @@ window.adminSoftDelete = async function(userId) {
       deletedByEmail: auth.currentUser?.email || 'admin',
       deletedByAdmin: true
     }, { merge: true });
-    // Update local cache
     allSubmissions[userId] = { ...d, deletedByUser: true, deletedByAdmin: true };
     if (!deletedProfiles.find(p => p._id === userId)) {
       deletedProfiles.push(allSubmissions[userId]);
     }
-    // Remove from account profiles if linked
     if (d.accountUid && d._profileDocId) {
       try { await deleteDoc(doc(db, "accounts", d.accountUid, "profiles", d._profileDocId)); } catch(e) {}
     }
@@ -1035,7 +1036,6 @@ window.adminSoftDelete = async function(userId) {
   } catch(e) { alert('Error: ' + e.message); }
 };
 
-// Restore: unmarks deletedByUser so it reappears in active profiles
 window.adminRestoreSubmission = async function(userId) {
   const d = allSubmissions[userId];
   if (!d) return;
@@ -1053,7 +1053,6 @@ window.adminRestoreSubmission = async function(userId) {
   } catch(e) { alert('Error: ' + e.message); }
 };
 
-// Hard delete: permanently erases submission from Firestore + profile subcollection doc
 window.adminHardDelete = async function(userId) {
   const d = allSubmissions[userId];
   if (!d) return;
@@ -1061,18 +1060,14 @@ window.adminHardDelete = async function(userId) {
   const confirmed = confirm(`⚠️ PERMANENTLY DELETE "${name}"?\n\nThis cannot be undone. The submission and all its data will be erased from Firestore forever.\n\nType OK to confirm.`);
   if (!confirmed) return;
   try {
-    // Delete from submissions collection
     await deleteDoc(doc(db, "submissions", userId));
-    // Delete profile doc from accounts subcollection if linked
     if (d.accountUid) {
       const profileDocId = d._profileDocId || userId;
       try { await deleteDoc(doc(db, "accounts", d.accountUid, "profiles", profileDocId)); } catch(e) {}
     }
-    // Update local caches
     delete allSubmissions[userId];
     deletedProfiles = deletedProfiles.filter(p => p._id !== userId);
     orphanSubmissions = orphanSubmissions.filter(p => p._id !== userId);
-    // Remove from accountsData profiles arrays
     accountsData.forEach(acct => {
       acct.profiles = acct.profiles.filter(p => p.userId !== userId && p._profileDocId !== userId);
     });
@@ -1090,26 +1085,23 @@ document.getElementById('detail-modal').addEventListener('click', function(e) {
 });
 
 // ─── MESSAGES ─────────────────────────────────────────────
-let allMessages = []; // cached sent messages
+let allMessages = [];
 let msgFilterAccount = 'all';
 
 async function loadMessages() {
   try {
     const snap = await getDocs(query(collection(db, "adminMessages"), orderBy("sentAt", "desc")));
     allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // For each message, try to find the matching inbox doc so we can delete it
     for (const m of allMessages) {
       if (m.toUid && !m._inboxId) {
         try {
           const inboxSnap = await getDocs(collection(db, "messages", m.toUid, "inbox"));
           const match = inboxSnap.docs.find(d => {
             const data = d.data();
-            return data.subject === m.subject && data.sentBy === m.sentBy &&
-              data.body === m.body;
+            return data.subject === m.subject && data.sentBy === m.sentBy && data.body === m.body;
           });
           if (match) m._inboxId = match.id;
-        } catch(e) { /* non-blocking */ }
+        } catch(e) {}
       }
     }
   } catch(e) { allMessages = []; }
@@ -1117,8 +1109,6 @@ async function loadMessages() {
 
 function renderMessages() {
   const area = document.getElementById('content-area');
-  
-  // Build account options for selector
   const accountOptions = accountsData.map(a =>
     `<option value="${escapeHtml(a.uid)}">${escapeHtml(a.email)}</option>`
   ).join('');
@@ -1127,28 +1117,22 @@ function renderMessages() {
     <div class="msg-compose">
       <h3>📨 Send Message to User</h3>
       <p>Messages are sent to an account. Since one account can have multiple profiles, you can optionally tag a specific profile so the user knows which one it's about.</p>
-      
       <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Select Account</label>
       <select class="msg-target-select" id="msg-acct-select" onchange="onMsgAccountChange()">
         <option value="">— Choose an account —</option>
         ${accountOptions}
       </select>
-      
       <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Tag a Specific Profile (optional)</label>
       <select class="msg-profile-select" id="msg-profile-select">
         <option value="">— All profiles / General message —</option>
       </select>
-      
       <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Subject</label>
       <input type="text" class="msg-subject-input" id="msg-subject" placeholder="e.g. Your nutrition plan is ready"/>
-      
       <label style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Message</label>
       <textarea class="msg-body-input" id="msg-body" placeholder="Write your message to the user…"></textarea>
-      
       <button class="btn-send-msg" onclick="sendAdminMessage()">Send Message ➤</button>
       <div class="msg-sent-ok" id="msg-sent-ok">✅ Message sent successfully!</div>
     </div>
-    
     <div class="msg-history">
       <h3>📋 Sent Messages</h3>
       <div class="msg-history-sub">All messages sent from the admin to users.</div>
@@ -1187,11 +1171,9 @@ window.sendAdminMessage = async function() {
   const profileId = document.getElementById('msg-profile-select').value;
   const subject = document.getElementById('msg-subject').value.trim();
   const body = document.getElementById('msg-body').value.trim();
-  
   if (!uid) { alert('Please select an account to send to.'); return; }
   if (!subject) { alert('Please enter a subject.'); return; }
   if (!body) { alert('Please enter a message.'); return; }
-  
   const acct = accountsData.find(a => a.uid === uid);
   const toEmail = acct ? acct.email : uid;
   let profileName = '';
@@ -1200,36 +1182,21 @@ window.sendAdminMessage = async function() {
     const sub = allSubmissions[profileId] || {};
     profileName = p?.name || sub?.name || profileId;
   }
-  
   try {
     const msgData = {
-      toUid: uid,
-      toEmail,
-      profileId: profileId || null,
-      profileName: profileName || null,
-      subject,
-      body,
-      sentAt: serverTimestamp(),
-      sentBy: auth.currentUser?.email || 'admin',
-      read: false
+      toUid: uid, toEmail, profileId: profileId || null, profileName: profileName || null,
+      subject, body, sentAt: serverTimestamp(), sentBy: auth.currentUser?.email || 'admin', read: false
     };
-    
-    // Write to adminMessages (admin history view)
     await addDoc(collection(db, "adminMessages"), msgData);
-    // Write to user's inbox: messages/{uid}/inbox/{autoId}
     await addDoc(collection(db, "messages", uid, "inbox"), msgData);
-    
-    // Reset form
     document.getElementById('msg-subject').value = '';
     document.getElementById('msg-body').value = '';
     document.getElementById('msg-acct-select').value = '';
     document.getElementById('msg-profile-select').innerHTML = '<option value="">— All profiles / General message —</option>';
     document.getElementById('msg-profile-select').classList.remove('visible');
-    
     const ok = document.getElementById('msg-sent-ok');
     ok.style.display = 'block';
     setTimeout(() => ok.style.display = 'none', 3000);
-    
     await loadMessages();
     renderMessageHistory();
   } catch(e) { alert('Error sending message: ' + e.message); }
@@ -1238,13 +1205,10 @@ window.sendAdminMessage = async function() {
 function renderMessageHistory() {
   const list = document.getElementById('msg-history-list');
   if (!list) return;
-  
   if (allMessages.length === 0) {
     list.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">No messages sent yet.</div>`;
     return;
   }
-  
-  // Build filter buttons for accounts
   const accounts = [...new Set(allMessages.map(m => m.toEmail))];
   const filterBtns = `
     <div class="msg-filter-row">
@@ -1252,9 +1216,7 @@ function renderMessageHistory() {
       ${accounts.map(e => `<button class="msg-filter-btn ${msgFilterAccount===e?'active':''}" onclick="setMsgFilter('${escapeHtml(e)}')">${escapeHtml(e)}</button>`).join('')}
     </div>
   `;
-  
   const filtered = msgFilterAccount === 'all' ? allMessages : allMessages.filter(m => m.toEmail === msgFilterAccount);
-  
   list.innerHTML = filterBtns + (filtered.length === 0
     ? `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">No messages for this account.</div>`
     : filtered.map(m => `
@@ -1282,23 +1244,19 @@ window.setMsgFilter = function(val) {
 window.deleteAdminMessage = async function(msgId, toUid, inboxMsgId) {
   if (!confirm('Delete this message?\n\nThis will remove it from admin history AND the user\'s inbox.')) return;
   try {
-    // Delete from adminMessages (admin history)
     await deleteDoc(doc(db, "adminMessages", msgId));
-    // Also delete from user's inbox
     if (toUid && inboxMsgId) {
-      try { await deleteDoc(doc(db, "messages", toUid, "inbox", inboxMsgId)); } catch(e) { console.warn('Inbox delete failed:', e); }
+      try { await deleteDoc(doc(db, "messages", toUid, "inbox", inboxMsgId)); } catch(e) {}
     }
     allMessages = allMessages.filter(m => m.id !== msgId);
     renderMessageHistory();
   } catch(e) { alert('Error: ' + e.message); }
 };
 
-// Delete a message only from the user's inbox (not admin history)
 window.deleteInboxMessage = async function(toUid, inboxMsgId) {
   if (!confirm('Delete this message from the user\'s inbox only?\n(Admin history is kept.)')) return;
   try {
     await deleteDoc(doc(db, "messages", toUid, "inbox", inboxMsgId));
-    // Mark in local allMessages
     const m = allMessages.find(x => x._inboxId === inboxMsgId);
     if (m) m._inboxDeleted = true;
     renderMessageHistory();
@@ -1306,6 +1264,9 @@ window.deleteInboxMessage = async function(toUid, inboxMsgId) {
 };
 
 // ─── ADMIN COMMENTS ────────────────────────────────────────
+// Cache for comment replies loaded from Firestore
+let _commentRepliesCache = {};
+
 async function renderAdminComments() {
   const area = document.getElementById('content-area');
   area.innerHTML = `<div class="loading"><div class="spinner"></div>Loading comments…</div>`;
@@ -1315,29 +1276,57 @@ async function renderAdminComments() {
     const snap = await getDocs(query(collection(db, "comments"), orderBy("submittedAt", "desc")));
     snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
   } catch(e) {
-    // Try without ordering if index missing
     try {
       const snap2 = await getDocs(collection(db, "comments"));
       snap2.forEach(d => comments.push({ id: d.id, ...d.data() }));
-      comments.sort((a,b) => {
-        const ta = a.submittedAt?.seconds || 0;
-        const tb = b.submittedAt?.seconds || 0;
-        return tb - ta;
-      });
+      comments.sort((a,b) => (b.submittedAt?.seconds||0) - (a.submittedAt?.seconds||0));
     } catch(e2) { comments = []; }
   }
-  
+
+  // Load all existing replies for these comments
+  _commentRepliesCache = {};
+  for (const c of comments) {
+    try {
+      const rSnap = await getDocs(query(collection(db, "comments", c.id, "adminReplies"), orderBy("sentAt", "desc")));
+      _commentRepliesCache[c.id] = rSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) {
+      _commentRepliesCache[c.id] = [];
+    }
+  }
+
+  // Build account options for reply dropdowns
+  const accountOptions = accountsData.map(a =>
+    `<option value="${escapeHtml(a.uid)}|${escapeHtml(a.email)}">${escapeHtml(a.email)}</option>`
+  ).join('');
+
   area.innerHTML = `
     <div class="settings-section">
       <h3>💬 User Comments & Queries</h3>
-      <p>All comments and queries submitted by users from the Comments page. You can delete or flag inappropriate ones.</p>
+      <p>All comments and queries submitted by users. You can reply directly to a user's inbox or delete a comment.</p>
       ${comments.length === 0
         ? `<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">No comments found in Firestore.<br/><small style="font-size:11px;">Note: Comments are stored in the <code>comments</code> Firestore collection when submitted with Firestore integration.</small></div>`
         : comments.map(c => {
             const initials = (c.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-            const isFlagged = c.flagged === true;
+            const existingReplies = _commentRepliesCache[c.id] || [];
+            const repliesHtml = existingReplies.length > 0 ? `
+              <div class="cmt-admin-replies">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--teal-dark);margin-bottom:6px;">↩ Admin Replies (${existingReplies.length})</div>
+                ${existingReplies.map(r => `
+                  <div class="cmt-admin-reply-item" id="reply-item-${r.id}">
+                    <button class="cmt-admin-reply-del" onclick="deleteCommentReply('${c.id}','${r.id}')">✕</button>
+                    <div class="cmt-admin-reply-header">
+                      <span class="cmt-admin-reply-by">Admin · ${escapeHtml(r.sentBy||'admin')}</span>
+                      <span class="cmt-admin-reply-time">${formatTs(r.sentAt)}</span>
+                    </div>
+                    <div class="cmt-admin-reply-subj">${escapeHtml(r.subject||'Re: Your query')}</div>
+                    <div class="cmt-admin-reply-body">${escapeHtml(r.body||'')}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : '';
+
             return `
-              <div class="cmt-item ${isFlagged?'flagged':''}">
+              <div class="cmt-item" id="cmt-${c.id}" data-email="${escapeHtml(c.email||c.contact||'')}" data-contact="${escapeHtml(c.contact||c.email||'')}" data-phone="${escapeHtml(c.phone||'')}" data-account-uid="${escapeHtml(c.accountUid||'')}">
                 <div class="cmt-head">
                   <div class="cmt-meta">
                     <div class="cmt-av">${initials}</div>
@@ -1351,11 +1340,32 @@ async function renderAdminComments() {
                 </div>
                 ${c.category?`<div class="cmt-cat">${escapeHtml(c.category)}</div>`:''}
                 <div class="cmt-text">${escapeHtml(c.query||c.text||'(no content)')}</div>
+                ${repliesHtml}
                 <div class="cmt-actions">
+                  <button class="cmt-reply-btn" onclick="toggleReplyBox('${c.id}')">↩ Reply</button>
                   <button class="cmt-del-btn" onclick="deleteComment('${c.id}')">🗑 Delete</button>
-                  <button class="cmt-flag-btn" onclick="flagComment('${c.id}',${!isFlagged})">
-                    ${isFlagged ? '✅ Unflag' : '⚠️ Flag'}
-                  </button>
+                </div>
+
+                <!-- Inline Reply Box -->
+                <div class="cmt-reply-box" id="reply-box-${c.id}">
+                  <div class="cmt-reply-label">Reply to this comment</div>
+                  <div class="cmt-reply-to">
+                    💬 "${escapeHtml((c.query||c.text||'').slice(0,80))}${(c.query||c.text||'').length>80?'…':''}"
+                  </div>
+                  <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Send reply to account</label>
+                  <select class="cmt-reply-account-select" id="reply-acct-${c.id}">
+                    <option value="">— Select user account to send to inbox —</option>
+                    ${accountOptions}
+                  </select>
+                  <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Subject</label>
+                  <input type="text" class="cmt-reply-subject" id="reply-subj-${c.id}" placeholder="Re: Your query" value="Re: Your query"/>
+                  <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Message</label>
+                  <textarea class="cmt-reply-textarea" id="reply-body-${c.id}" placeholder="Write your reply…"></textarea>
+                  <div class="cmt-reply-actions">
+                    <button class="cmt-reply-send" onclick="sendCommentReply('${c.id}')">Send Reply ➤</button>
+                    <button class="cmt-reply-cancel" onclick="toggleReplyBox('${c.id}')">Cancel</button>
+                    <span class="cmt-reply-ok" id="reply-ok-${c.id}">✅ Reply sent!</span>
+                  </div>
                 </div>
               </div>
             `;
@@ -1365,17 +1375,141 @@ async function renderAdminComments() {
   `;
 }
 
+// Toggle the inline reply box open/closed
+window.toggleReplyBox = function(commentId) {
+  const box = document.getElementById(`reply-box-${commentId}`);
+  if (!box) return;
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) {
+    // Auto-select the matching account from the comment's stored email/contact
+    const cmtEl = document.getElementById(`cmt-${commentId}`);
+    if (cmtEl) {
+      // Auto-select account from data attributes on the comment element
+      const sel = document.getElementById(`reply-acct-${commentId}`);
+      if (sel) {
+        const commentAccountUid = cmtEl.dataset.accountUid || '';
+        const commentEmail = cmtEl.dataset.email || '';
+        const commentContact = cmtEl.dataset.contact || '';
+        const commentPhone = cmtEl.dataset.phone || '';
+
+        let matchedAcct = null;
+
+        // 1st priority: match by accountUid stored in comment doc
+        if (commentAccountUid) {
+          matchedAcct = accountsData.find(a => a.uid === commentAccountUid);
+        }
+
+        // 2nd priority: match by email/contact if it looks like an email
+        if (!matchedAcct) {
+          const needle = (commentEmail || commentContact || '').toLowerCase().trim();
+          if (needle.includes('@')) {
+            matchedAcct = accountsData.find(a => a.email && a.email.toLowerCase() === needle);
+          }
+        }
+
+        if (matchedAcct) {
+          const optionValue = `${matchedAcct.uid}|${matchedAcct.email}`;
+          for (const opt of sel.options) {
+            if (opt.value === optionValue) {
+              sel.value = optionValue;
+              break;
+            }
+          }
+        }
+      }
+    }
+    setTimeout(() => box.querySelector('textarea')?.focus(), 100);
+  }
+};
+
+// Send a reply: writes to user's inbox AND saves under comments/{id}/adminReplies
+window.sendCommentReply = async function(commentId) {
+  const acctVal = document.getElementById(`reply-acct-${commentId}`)?.value;
+  const subject = document.getElementById(`reply-subj-${commentId}`)?.value.trim();
+  const body = document.getElementById(`reply-body-${commentId}`)?.value.trim();
+
+  if (!acctVal) { alert('Please select a user account to send the reply to.'); return; }
+  if (!subject) { alert('Please enter a subject.'); return; }
+  if (!body) { alert('Please enter a reply message.'); return; }
+
+  const [toUid, toEmail] = acctVal.split('|');
+
+  try {
+    const replyData = {
+      toUid,
+      toEmail,
+      subject,
+      body,
+      sentAt: serverTimestamp(),
+      sentBy: auth.currentUser?.email || 'admin',
+      commentId,
+      type: 'comment_reply',
+      read: false
+    };
+
+    // 1. Write to user's inbox
+    await addDoc(collection(db, "messages", toUid, "inbox"), replyData);
+    // 2. Also write to adminMessages for history tracking
+    await addDoc(collection(db, "adminMessages"), replyData);
+    // 3. Save a copy under the comment itself for the admin reply thread view
+    await addDoc(collection(db, "comments", commentId, "adminReplies"), replyData);
+
+    // Show success feedback
+    const okEl = document.getElementById(`reply-ok-${commentId}`);
+    if (okEl) { okEl.style.display = 'inline-block'; setTimeout(() => okEl.style.display = 'none', 3000); }
+
+    // Clear the form fields
+    const bodyEl = document.getElementById(`reply-body-${commentId}`);
+    if (bodyEl) bodyEl.value = '';
+
+    // Refresh to show new reply under the comment
+    await renderAdminComments();
+  } catch(e) { alert('Error sending reply: ' + e.message); }
+};
+
+// Delete a previously sent admin reply from the thread
+window.deleteCommentReply = async function(commentId, replyId) {
+  if (!confirm('Delete this reply?\n\nThis will remove it from the admin thread AND from the user\'s inbox.')) return;
+  try {
+    // Get the reply data first so we know the toUid and inbox message id
+    const replyRef = doc(db, "comments", commentId, "adminReplies", replyId);
+    const replySnap = await getDoc(replyRef);
+    const replyData = replySnap.exists() ? replySnap.data() : null;
+
+    // 1. Delete from admin reply thread
+    await deleteDoc(replyRef);
+
+    // 2. Delete matching message from user's inbox
+    if (replyData?.toUid) {
+      try {
+        // The inbox doc was created with the same data; find by commentId + type
+        const inboxSnap = await getDocs(query(
+          collection(db, "messages", replyData.toUid, "inbox"),
+          where("commentId", "==", commentId),
+          where("type", "==", "comment_reply")
+        ));
+        for (const d of inboxSnap.docs) {
+          // Match by subject+body to avoid deleting wrong message if multiple replies
+          const dd = d.data();
+          if (dd.subject === replyData.subject && dd.body === replyData.body) {
+            await deleteDoc(d.ref);
+          }
+        }
+      } catch(inboxErr) {
+        console.warn('Could not delete inbox copy:', inboxErr);
+      }
+    }
+
+    // Remove from UI
+    const item = document.getElementById(`reply-item-${replyId}`);
+    if (item) item.remove();
+  } catch(e) { alert('Error: ' + e.message); }
+};
+
 window.deleteComment = async function(id) {
   if (!confirm('Permanently delete this comment?')) return;
   try {
     await deleteDoc(doc(db, "comments", id));
-    renderAdminComments();
-  } catch(e) { alert('Error: ' + e.message); }
-};
-
-window.flagComment = async function(id, flag) {
-  try {
-    await setDoc(doc(db, "comments", id), { flagged: flag }, { merge: true });
     renderAdminComments();
   } catch(e) { alert('Error: ' + e.message); }
 };
