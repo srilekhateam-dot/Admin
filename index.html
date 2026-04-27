@@ -370,6 +370,7 @@ let orphanSubmissions = [];  // submissions with no accountUid
 let deletedProfiles = [];    // submissions marked deletedByUser:true
 let restrictedUsers = [];    // [{email, reason, restrictedAt}]
 let registrationClosed = false; // from Firestore settings doc
+let formSubmissionClosed = false; // from Firestore settings doc
 let currentTab = 'accounts';
 
 // ─── AUTH FLOW ────────────────────────────────────────────
@@ -507,7 +508,8 @@ async function loadAllData() {
     try {
       const settingsDoc = await getDoc(doc(db, "settings", "global"));
       registrationClosed = settingsDoc.exists() ? !!settingsDoc.data().registrationClosed : false;
-    } catch(e) { registrationClosed = false; }
+      formSubmissionClosed = settingsDoc.exists() ? !!settingsDoc.data().formSubmissionClosed : false;
+    } catch(e) { registrationClosed = false; formSubmissionClosed = false; }
     
     renderCurrentTab();
   } catch(e) {
@@ -807,6 +809,26 @@ function renderSettings() {
     </div>
 
     <div class="settings-section" style="margin-top:0;">
+      <h3>📋 Form Submission Settings</h3>
+      <p>Control whether the diet plan submission form is open or closed. When closed, the form fields are hidden and replaced with a "Form Submissions Closed" message. Existing users retain full access to their profiles, messages, and all other pages.</p>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <strong>Close Form Submissions</strong>
+          <span>When ON, the diet plan form is hidden and users see a "submissions closed" notice instead.</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="form-toggle" ${formSubmissionClosed ? 'checked' : ''} onchange="toggleFormSubmission(this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div style="margin-top:10px;">
+        <span class="toggle-status ${formSubmissionClosed ? 'closed' : 'open'}" id="form-status-badge">
+          ${formSubmissionClosed ? '🔒 Form Submissions Closed' : '✅ Form Submissions Open'}
+        </span>
+      </div>
+    </div>
+
+    <div class="settings-section" style="margin-top:0;">
       <h3>ℹ️ How These Features Work</h3>
       <p style="margin-bottom:0;">
         <strong>Restricting a user</strong> writes their email to the <code>restrictedUsers</code> Firestore collection. 
@@ -829,8 +851,23 @@ window.toggleRegistration = async function(closed) {
     }
   } catch(e) {
     alert('Failed to update setting: ' + e.message);
-    // Revert toggle
     const el = document.getElementById('reg-toggle');
+    if (el) el.checked = !closed;
+  }
+};
+
+window.toggleFormSubmission = async function(closed) {
+  try {
+    await setDoc(doc(db, "settings", "global"), { formSubmissionClosed: closed }, { merge: true });
+    formSubmissionClosed = closed;
+    const badge = document.getElementById('form-status-badge');
+    if (badge) {
+      badge.className = 'toggle-status ' + (closed ? 'closed' : 'open');
+      badge.textContent = closed ? '🔒 Form Submissions Closed' : '✅ Form Submissions Open';
+    }
+  } catch(e) {
+    alert('Failed to update setting: ' + e.message);
+    const el = document.getElementById('form-toggle');
     if (el) el.checked = !closed;
   }
 };
