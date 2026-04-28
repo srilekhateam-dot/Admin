@@ -843,15 +843,7 @@ function renderSettings() {
       </div>
     </div>
 
-    <div class="settings-section" style="margin-top:0;">
-      <h3>ℹ️ How These Features Work</h3>
-      <p style="margin-bottom:0;">
-        <strong>Restricting a user</strong> writes their email to the <code>restrictedUsers</code> Firestore collection. 
-        On sign-in and account creation, the app checks this collection and blocks access with a clear error message.<br/><br/>
-        <strong>Disabling registrations</strong> sets <code>settings/global.registrationClosed = true</code> in Firestore. 
-        The registration form checks this flag before allowing new account creation. Existing users can still sign in normally.
-      </p>
-    </div>
+   
   `;
 }
 
