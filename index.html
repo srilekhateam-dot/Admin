@@ -121,6 +121,10 @@
   .modal-body{padding:20px 22px;flex:1;}
   .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:0;background:#fff;z-index:2;}
   .modal-footer-left{display:flex;gap:8px;align-items:center;}
+  .btn-dl-profile{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #16a34a;color:#16a34a;background:transparent;flex-shrink:0;display:flex;align-items:center;gap:4px;}
+  .btn-dl-profile:hover{background:#16a34a;color:#fff;}
+  .btn-dl-all{padding:10px 18px;border:1.5px solid #16a34a;border-radius:var(--radius-sm);background:transparent;color:#16a34a;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn-dl-all:hover{background:#16a34a;color:#fff;}
   .btn-del-submission{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:transparent;font-family:inherit;display:flex;align-items:center;gap:6px;}
   .btn-del-submission:hover{background:var(--red);color:#fff;}
   .btn-del-permanent{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--red);font-family:inherit;display:flex;align-items:center;gap:6px;}
@@ -143,6 +147,8 @@
   .btn-block:hover{background:var(--red);color:#fff;}
   .btn-unblock{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--teal);color:var(--teal);background:transparent;flex-shrink:0;}
   .btn-unblock:hover{background:var(--teal);color:#fff;}
+  .btn-del-account{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:transparent;flex-shrink:0;}
+  .btn-del-account:hover{background:var(--red);color:#fff;}
   .acct-blocked-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;background:var(--red-light);color:var(--red);border:1px solid #fca5a5;letter-spacing:0.5px;text-transform:uppercase;}
 
   /* Settings tab */
@@ -324,6 +330,8 @@
       <div class="tab" data-tab="deleted" onclick="switchTab('deleted')">Deleted Profiles</div>
       <div class="tab" data-tab="orphans" onclick="switchTab('orphans')">Orphan Submissions</div>
       <div class="tab" data-tab="restricted" onclick="switchTab('restricted')">🚫 Restricted</div>
+     
+      
       <div class="tab" data-tab="comments" onclick="switchTab('comments')">💬 Comments</div>
       <div class="tab" data-tab="messages" onclick="switchTab('messages')">✉️ Messages</div>
        <div class="tab" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</div>
@@ -333,6 +341,7 @@
     <div class="search-row">
       <input type="text" class="search-input" id="search-input" placeholder="Search by email, name, or user ID…" oninput="renderCurrentTab()"/>
       <button class="btn btn-p" style="width:auto;padding:10px 20px;" onclick="refreshAll()">🔄 Refresh</button>
+      <button class="btn-dl-all" onclick="downloadAllProfiles()" title="Download all profiles as one Excel sheet (horizontal)">⬇ Download All</button>
     </div>
 
     <!-- Content area -->
@@ -353,6 +362,54 @@
     </div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal-overlay" id="del-acct-modal" style="z-index:1200;">
+  <div class="modal-box" style="max-width:460px;width:94%;">
+    <div class="modal-head" style="border-bottom:2px solid var(--red-light);">
+      <h3 style="font-family:'Fraunces',serif;font-size:1.1rem;color:var(--red);display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.4rem;">⚠️</span> Delete Account
+      </h3>
+      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:22px;">
+      <div style="background:var(--red-light);border:1.5px solid #fca5a5;border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:18px;">
+        <div style="font-weight:700;color:var(--red);font-size:13.5px;margin-bottom:4px;">This action cannot be undone.</div>
+        <div style="font-size:13px;color:#7f1d1d;line-height:1.7;">
+          You are about to permanently delete:<br/>
+          <strong id="del-acct-email-display" style="font-size:14px;"></strong>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text);margin-bottom:16px;line-height:1.8;">
+        The following will be <strong>permanently erased from Firestore:</strong>
+        <ul style="margin:8px 0 0 18px;color:#374151;line-height:2;">
+          <li>The account record</li>
+          <li id="del-acct-profile-count-line">All linked profile submissions</li>
+          <li>All entries in the account's profiles sub-collection</li>
+        </ul>
+      </div>
+      <div style="background:#fef9ec;border:1.5px solid #fde68a;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:20px;font-size:12.5px;color:#92400e;">
+        💡 <strong>Tip:</strong> If you only want to prevent sign-in, use the <em>Block</em> button instead — the account data will be preserved.
+      </div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:8px;">Type <span style="background:#fef2f2;color:var(--red);padding:2px 8px;border-radius:4px;font-family:monospace;">DELETE</span> to confirm:</div>
+      <input type="text" id="del-acct-confirm-input" placeholder='Type DELETE to confirm'
+        style="width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:inherit;background:var(--bg);outline:none;margin-bottom:16px;"
+        oninput="checkDelAcctInput(this)"
+        onpaste="setTimeout(()=>checkDelAcctInput(this),0)"/>
+      <div style="display:flex;gap:10px;">
+        <button id="del-acct-confirm-btn" onclick="executeDeleteAccount()"
+          style="flex:1;padding:11px;border:none;border-radius:var(--radius-sm);background:#ccc;color:#fff;font-size:14px;font-weight:700;cursor:not-allowed;font-family:inherit;transition:background 0.2s;"
+          disabled>
+          🗑️ Delete Permanently
+        </button>
+        <button onclick="closeDeleteAccountModal()"
+          style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:#fff;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">
+          Cancel
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -582,14 +639,28 @@ function renderAccounts() {
   
   area.innerHTML = filtered.map(acct => {
     const initials = (acct.email[0]||'?').toUpperCase();
-    const activeCount = acct.profiles.length;
-    const deletedCount = deletedProfiles.filter(d => d.accountUid === acct.uid).length;
+    const activeProfiles = acct.profiles.filter(p => {
+      const sub = allSubmissions[p.userId];
+      return !sub || !sub.deletedByUser;
+    });
+    const activeCount = activeProfiles.length;
+  const deletedCount = deletedProfiles.filter(d => d.accountUid === acct.uid).length;
+const editedCount = acct.profiles.filter(p => {
+  const sub = allSubmissions[p.userId];
+  return sub && (sub.updatedAt || sub.adminUpdatedAt) && !sub.deletedByUser;
+}).length;
     const isBlocked = restrictedUsers.some(r => r.email.toLowerCase() === acct.email.toLowerCase());
     
-    const activeRows = acct.profiles.map(p => {
-      const sub = allSubmissions[p.userId] || {};
-      return buildProfileRow(p, sub, false);
-    }).join('');
+    const activeRows = acct.profiles
+      .filter(p => {
+        const sub = allSubmissions[p.userId];
+        // Exclude if submission is marked deleted by user
+        return !sub || !sub.deletedByUser;
+      })
+      .map(p => {
+        const sub = allSubmissions[p.userId] || {};
+        return buildProfileRow(p, sub, false);
+      }).join('');
     
     const deletedRows = deletedProfiles
       .filter(d => d.accountUid === acct.uid)
@@ -614,7 +685,8 @@ function renderAccounts() {
           </div>
           <div class="acct-counts">
             <span class="count-pill active">${activeCount} active</span>
-            ${deletedCount>0?`<span class="count-pill deleted">${deletedCount} deleted</span>`:''}
+           ${deletedCount>0?`<span class="count-pill deleted">${deletedCount} deleted</span>`:''}
+${editedCount>0?`<span class="count-pill" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">${editedCount} edited</span>`:''}
             ${blockBtn}
             <span class="chevron">▾</span>
           </div>
@@ -622,7 +694,15 @@ function renderAccounts() {
         <div class="account-body">
           ${isBlocked ? '<div style="padding:8px 14px;font-size:12px;color:var(--red);font-weight:600;background:var(--red-light);border-radius:8px;margin-bottom:8px;">⛔ This account is currently blocked from signing in.</div>' : ''}
           ${activeRows || '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">No active profiles</div>'}
-          ${deletedRows ? '<div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--red);padding:10px 4px 6px;letter-spacing:0.6px;">Deleted by User</div>'+deletedRows : ''}
+          ${deletedRows ? '<div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--red);padding:10px 4px 6px;letter-spacing:0.6px;">🗑️ Deleted by User / Admin</div>'+deletedRows : ''}
+          ${!isSelf && safeEmail !== '(no email)' ? `
+          <div style="margin-top:14px;padding:12px 14px;border-top:1px dashed #fca5a5;background:#fff9f9;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--red);margin-bottom:8px;"></div>
+            <button class="btn-del-account" onclick="event.stopPropagation();openDeleteAccountModal('${acct.uid}','${escapeHtml(acct.email)}',${acct.profiles.length})">
+              🗑️ Delete This Account
+            </button>
+            <span style="font-size:11px;color:var(--muted);margin-left:10px;">Permanently removes account + all ${acct.profiles.length} profile(s)</span>
+          </div>` : ''}
         </div>
       </div>
     `;
@@ -654,10 +734,13 @@ function buildProfileRow(profile, submission, isDeleted) {
           <span class="pr-tags">
             ${isForOther?`<span class="mini-tag other">${escapeHtml(profile.relation||submission.plan_other_relation||'Other')}</span>`:'<span class="mini-tag self">Self</span>'}
             ${isDeleted?'<span class="mini-tag deleted">DELETED</span>':''}
+            ${!isDeleted&&submission.updatedAt?'<span class="mini-tag" style="background:#fef3e6;color:#92400e;">EDITED</span>':''}
+            ${!isDeleted&&submission.adminUpdatedAt?'<span class="mini-tag" style="background:#fffbeb;color:#b45309;">ADMIN UPDATED</span>':''}
           </span>
         </div>
         ${isDeleted&&delAt?`<div style="font-size:10.5px;color:var(--red);margin-top:3px;">🗑️ Deleted on ${delAt}</div>`:''}
       </div>
+      <button class="btn-dl-profile" onclick="event.stopPropagation();downloadProfileExcel('${userId}')" title="Download Excel for this profile">⬇ XLS</button>
       <button class="pr-view" onclick="viewProfile('${userId}')">View</button>
     </div>
   `;
@@ -821,6 +904,15 @@ function renderSettings() {
           ${registrationClosed ? '🔒 Registrations Closed' : '✅ Registrations Open'}
         </span>
       </div>
+      <div id="reg-closed-info" style="display:${registrationClosed ? 'block' : 'none'};margin-top:14px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:var(--radius-sm);padding:14px 16px;">
+        <div style="font-weight:700;color:var(--red);font-size:13px;margin-bottom:6px;">🔒 What users currently see:</div>
+        <ul style="font-size:12.5px;color:#7f1d1d;line-height:1.8;padding-left:18px;">
+          <li>The <strong>"Create Account"</strong> tab on the Profile page is greyed out and disabled.</li>
+          <li>A red banner says: <em>"New registrations are currently closed. Please try again later."</em></li>
+          <li>After submitting a diet form, the <strong>Create Account option is hidden</strong> — they can only Sign In to an existing account.</li>
+          <li>If they try to create an account via the form modal, they see: <em>"New registrations are currently closed."</em></li>
+        </ul>
+      </div>
     </div>
 
     <div class="settings-section" style="margin-top:0;">
@@ -843,7 +935,6 @@ function renderSettings() {
       </div>
     </div>
 
-   
   `;
 }
 
@@ -856,6 +947,8 @@ window.toggleRegistration = async function(closed) {
       badge.className = 'toggle-status ' + (closed ? 'closed' : 'open');
       badge.textContent = closed ? '🔒 Registrations Closed' : '✅ Registrations Open';
     }
+    const info = document.getElementById('reg-closed-info');
+    if (info) info.style.display = closed ? 'block' : 'none';
   } catch(e) {
     alert('Failed to update setting: ' + e.message);
     const el = document.getElementById('reg-toggle');
@@ -903,6 +996,88 @@ window.unblockAccount = async function(email) {
   } catch(e) { alert('Error: ' + e.message); }
 };
 
+// ─── DELETE ACCOUNT MODAL ────────────────────────────────
+let _delAcctUid = null;
+let _delAcctEmail = null;
+let _delAcctCount = 0;
+
+window.openDeleteAccountModal = function(uid, email, profileCount) {
+  if (auth.currentUser && auth.currentUser.uid === uid) {
+    alert('You cannot delete your own admin account.');
+    return;
+  }
+  _delAcctUid = uid;
+  _delAcctEmail = email;
+  _delAcctCount = profileCount;
+  document.getElementById('del-acct-email-display').textContent = email;
+  document.getElementById('del-acct-profile-count-line').textContent =
+    `All ${profileCount} profile submission(s) linked to this account`;
+  const inp = document.getElementById('del-acct-confirm-input');
+  inp.value = '';
+  inp.style.borderColor = '';
+  const btn = document.getElementById('del-acct-confirm-btn');
+  btn.disabled = true;
+  btn.style.background = '#ccc';
+  btn.style.cursor = 'not-allowed';
+  document.getElementById('del-acct-modal').classList.add('open');
+};
+
+window.closeDeleteAccountModal = function() {
+  document.getElementById('del-acct-modal').classList.remove('open');
+  _delAcctUid = null;
+  _delAcctEmail = null;
+};
+
+document.getElementById('del-acct-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteAccountModal();
+});
+
+window.checkDelAcctInput = function(inp) {
+  const btn = document.getElementById('del-acct-confirm-btn');
+  const isValid = inp.value.trim() === 'DELETE';
+  btn.disabled = !isValid;
+  btn.style.background = isValid ? 'var(--red)' : '#ccc';
+  btn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+  inp.style.borderColor = inp.value.length > 0 ? (isValid ? 'var(--teal)' : '#fca5a5') : '';
+};
+
+window.executeDeleteAccount = async function() {
+  if (!_delAcctUid || !_delAcctEmail) return;
+  const uid = _delAcctUid;
+  const email = _delAcctEmail;
+  closeDeleteAccountModal();
+
+  const btn = document.getElementById('del-acct-confirm-btn');
+
+  try {
+    const acct = accountsData.find(a => a.uid === uid);
+    // Delete all linked submission docs
+    if (acct && acct.profiles.length > 0) {
+      for (const p of acct.profiles) {
+        const subId = p.userId || p._profileDocId;
+        if (subId) {
+          try { await deleteDoc(doc(db, "submissions", subId)); } catch(e) {}
+        }
+        try { await deleteDoc(doc(db, "accounts", uid, "profiles", subId || p.name)); } catch(e) {}
+      }
+    }
+    // Delete any allSubmissions entries for this account
+    for (const sid of Object.keys(allSubmissions)) {
+      if (allSubmissions[sid].accountUid === uid) {
+        try { await deleteDoc(doc(db, "submissions", sid)); } catch(e) {}
+        delete allSubmissions[sid];
+      }
+    }
+    // Delete the account doc itself
+    try { await deleteDoc(doc(db, "accounts", uid)); } catch(e) {}
+    // Remove from local data
+    accountsData = accountsData.filter(a => a.uid !== uid);
+    deletedProfiles = deletedProfiles.filter(d => d.accountUid !== uid);
+    orphanSubmissions = orphanSubmissions.filter(s => s.accountUid !== uid);
+    renderCurrentTab();
+  } catch(e) { alert('Error deleting account: ' + e.message); }
+};
+
 // ─── VIEW PROFILE MODAL ───────────────────────────────────
 let _modalUserId = null;
 
@@ -930,31 +1105,72 @@ window.viewProfile = async function(userId) {
   
   body.innerHTML = `
     ${delBanner}
-    <div class="d-grid">
-      <div class="mc"><div class="mc-l">BMI</div><div class="mc-v">${d.bmi||'—'}</div></div>
-      <div class="mc"><div class="mc-l">Body Fat</div><div class="mc-v">${d.body_fat||'—'}</div></div>
-      <div class="mc"><div class="mc-l">Calories</div><div class="mc-v">${d.daily_calories||'—'}</div></div>
+    ${d.adminUpdatedAt ? `<div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:#92400e;">⚙️ <strong>Admin updated</strong> on ${formatTs(d.adminUpdatedAt)}${d.adminUpdatedBy?' by '+escapeHtml(d.adminUpdatedBy):''}</div>` : ''}
+
+    <!-- BMI Results -->
+    <div class="ds">
+      <div class="dst">📊 BMI Results</div>
+      <div class="d-grid">
+        <div class="mc"><div class="mc-l">BMI</div><div class="mc-v">${escapeHtml(d.bmi||'—')}</div><div style="font-size:10.5px;color:var(--muted);">${escapeHtml(d.bmi_category||'')}</div></div>
+        <div class="mc"><div class="mc-l">Present Weight</div><div class="mc-v">${d.weight_kg?escapeHtml(d.weight_kg)+' kg':'—'}</div></div>
+        <div class="mc"><div class="mc-l">Ideal Weight</div><div class="mc-v" style="color:#60d394;">${escapeHtml(d.ideal_weight||'—')}</div><div style="font-size:10.5px;color:var(--muted);">Range: ${escapeHtml(d.ideal_range||'—')}</div></div>
+      </div>
+      <div class="d-grid" style="grid-template-columns:1fr 1fr;margin-top:8px;">
+        <div class="mc"><div class="mc-l">Target Weight</div><div class="mc-v">${escapeHtml(d.target_weight||'—')}</div></div>
+        <div class="mc"><div class="mc-l">${d.weight_direction==='loss'?'To Lose':d.weight_direction==='gain'?'To Gain':'Status'}</div><div class="mc-v">${escapeHtml(d.weight_change||'—')}</div></div>
+      </div>
     </div>
+
+    <!-- Calorie Breakdown -->
+    <div class="ds">
+      <div class="dst">🔥 Calorie Breakdown</div>
+      <div class="d-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="mc" style="border-left:3px solid #5bc8f5;"><div class="mc-l">BMR</div><div class="mc-v" style="color:#5bc8f5;font-size:1.2rem;">${escapeHtml(d.bmr||'—')}</div><div style="font-size:10.5px;color:var(--muted);">kcal/day at rest</div></div>
+        <div class="mc" style="border-left:3px solid var(--teal);"><div class="mc-l">Maintenance</div><div class="mc-v" style="font-size:1.2rem;">${escapeHtml(d.maintenance_calories||'—')}</div><div style="font-size:10.5px;color:var(--muted);">kcal/day</div></div>
+      </div>
+      <div class="mc" style="background:linear-gradient(135deg,var(--teal),var(--teal-dark));border:none;margin:8px 0;text-align:center;padding:14px;">
+        <div class="mc-l" style="color:rgba(255,255,255,0.75);">⭐ Daily Calorie Target</div>
+        <div class="mc-v" style="color:#fff;font-size:1.8rem;">${escapeHtml(d.daily_calories||'—')}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);">kcal/day · ${escapeHtml(d.goal_rate_label||'goal')}</div>
+      </div>
+      <div class="d-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="mc" style="border-left:3px solid #f4a742;"><div class="mc-l">Timeline</div><div class="mc-v" style="color:#f4a742;font-size:1.1rem;">${d.timeline_days?escapeHtml(d.timeline_days)+' days':'—'}</div><div style="font-size:10.5px;color:var(--muted);">${escapeHtml(d.timeline_label||'—')}</div></div>
+        <div class="mc" style="border-left:3px solid #a78bfa;"><div class="mc-l">After-Goal Maintenance</div><div class="mc-v" style="color:#a78bfa;font-size:1.1rem;">${escapeHtml(d.after_goal_calories||'—')}</div><div style="font-size:10.5px;color:var(--muted);">kcal/day at goal weight</div></div>
+      </div>
+    </div>
+
+    <!-- Body Fat -->
+    <div class="ds">
+      <div class="dst">🧬 Body Fat</div>
+      <div class="d-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="mc"><div class="mc-l">Body Fat %</div><div class="mc-v">${escapeHtml(d.body_fat||'—')}</div><div style="font-size:10.5px;color:var(--muted);">${escapeHtml(d.body_fat_category||'')}</div></div>
+        <div class="mc"><div class="mc-l">Goal Rate</div><div class="mc-v" style="font-size:1rem;">${d.goal_rate?escapeHtml(d.goal_rate)+' kg/wk':'—'}</div><div style="font-size:10.5px;color:var(--muted);">${escapeHtml(d.goal_rate_label||'')}</div></div>
+      </div>
+    </div>
+
+    <!-- Submission Info -->
     <div class="ds">
       <div class="dst">Submission Info</div>
       ${row('User ID', userId)}
       ${row('Submitted', d.timestamp)}
+      ${d.updatedAt ? row('Last Resubmitted', formatTs(d.updatedAt)) : ''}
       ${row('Account UID', d.accountUid || '(none)')}
-      ${isForOther ? row('Plan For', `${d.plan_other_name} (${d.plan_other_relation})`) : row('Plan For', 'Self')}
+      ${isForOther ? row('Plan For', escapeHtml(d.plan_other_name||'')+(d.plan_other_relation?' ('+d.plan_other_relation+')':'')) : row('Plan For', 'Self')}
     </div>
     <div class="ds">
       <div class="dst">Personal Info</div>
-      ${row('Name', d.name)}
-      ${row('Age', d.age)}
-      ${row('Gender', d.gender)}
-      ${row('Height', d.height_cm?d.height_cm+' cm':'')}
-      ${row('Weight', d.weight_kg?d.weight_kg+' kg':'')}
-      ${row('Waist', d.waist_cm?d.waist_cm+' cm':'')}
-      ${row('Neck', d.neck_cm?d.neck_cm+' cm':'')}
-      ${d.hip_cm?row('Hip',d.hip_cm+' cm'):''}
-      ${row('Activity', d.activity)}
-      ${d.phone?row('Phone', d.phone):''}
-      ${d.email?row('Email', d.email):''}
+      ${row('Name', escapeHtml(d.name||''))}
+      ${row('Age', d.age?escapeHtml(d.age)+' yrs':'')}
+      ${row('Gender', escapeHtml(d.gender||''))}
+      ${row('Height', d.height_cm?escapeHtml(d.height_cm)+' cm':'')}
+      ${row('Weight', d.weight_kg?escapeHtml(d.weight_kg)+' kg':'')}
+      ${row('Waist', d.waist_cm?escapeHtml(d.waist_cm)+' cm':'')}
+      ${row('Neck', d.neck_cm?escapeHtml(d.neck_cm)+' cm':'')}
+      ${d.hip_cm?row('Hip',escapeHtml(d.hip_cm)+' cm'):''}
+      ${row('Activity', escapeHtml(d.activity||''))}
+      ${d.pregnant_lactating&&d.pregnant_lactating!=='No'?row('Pregnant/Lactating',escapeHtml(d.pregnant_lactating)):''}
+      ${d.phone?row('Phone', escapeHtml(d.phone)):''}
+      ${d.email?row('Email', escapeHtml(d.email)):''}
     </div>
     <div class="ds">
       <div class="dst">Health</div>
@@ -963,22 +1179,31 @@ window.viewProfile = async function(userId) {
     </div>
     <div class="ds">
       <div class="dst">Diet Preferences</div>
-      ${row('Diet', d.diet_preference)}
-      ${row('Meals/Day', d.meals_per_day)}
-      ${d.num_curries ? row('Curries/Day', d.num_curries) : ''}
-      ${row('Eating Window', d.eating_window)}
+      ${row('Diet', escapeHtml(d.diet_preference||''))}
+      ${d.num_curries ? row('Curries/Day', escapeHtml(d.num_curries)) : ''}
+      ${row('Eating Window', escapeHtml(d.eating_window||''))}
       <div class="dr"><span class="dk">Meal Types</span><span class="dv">${tl(d.meal_types)}</span></div>
     </div>
     <div class="ds">
       <div class="dst">Food Preferences</div>
       ${d.morning_drinks?`<div class="dr"><span class="dk">Morning Drinks</span><span class="dv">${tl(d.morning_drinks)}</span></div>`:''}
+      ${d.nuts_seeds?`<div class="dr"><span class="dk">Nuts &amp; Seeds</span><span class="dv">${tl(d.nuts_seeds)}</span></div>`:''}
       ${d.fruits?`<div class="dr"><span class="dk">Fruits</span><span class="dv">${tl(d.fruits)}</span></div>`:''}
       ${d.vegetables?`<div class="dr"><span class="dk">Vegetables</span><span class="dv">${tl(d.vegetables)}</span></div>`:''}
-      ${d.nuts_seeds?`<div class="dr"><span class="dk">Nuts & Seeds</span><span class="dv">${tl(d.nuts_seeds)}</span></div>`:''}
+      ${d.sprouts?`<div class="dr"><span class="dk">Sprouts</span><span class="dv">${tl(d.sprouts)}</span></div>`:''}
+      ${d.milkshakes?`<div class="dr"><span class="dk">Milkshakes</span><span class="dv">${tl(d.milkshakes)}</span></div>`:''}
+      ${d.smoothies?`<div class="dr"><span class="dk">Smoothies</span><span class="dv">${tl(d.smoothies)}</span></div>`:''}
+      ${d.porridge_malt?`<div class="dr"><span class="dk">Porridge &amp; Malts</span><span class="dv">${tl(d.porridge_malt)}</span></div>`:''}
+      ${d.breakfast?`<div class="dr"><span class="dk">Breakfast</span><span class="dv">${tl(d.breakfast)}</span></div>`:''}
+      ${d.chutney?`<div class="dr"><span class="dk">Chutney</span><span class="dv">${tl(d.chutney)}</span></div>`:''}
+      ${d.powders_ghee?`<div class="dr"><span class="dk">Powders &amp; Ghee</span><span class="dv">${tl(d.powders_ghee)}</span></div>`:''}
+      ${d.non_veg?`<div class="dr"><span class="dk">Non-Veg</span><span class="dv">${tl(d.non_veg)}</span></div>`:''}
+      ${d.rice?`<div class="dr"><span class="dk">Rice</span><span class="dv">${tl(d.rice)}</span></div>`:''}
+      ${d.millets_grains?`<div class="dr"><span class="dk">Millets &amp; Grains</span><span class="dv">${tl(d.millets_grains)}</span></div>`:''}
       ${d.food_dislikes?`<div class="dr"><span class="dk">Food Dislikes</span><span class="dv" style="color:#dc2626;">${escapeHtml(d.food_dislikes)}</span></div>`:''}
     </div>
     ${d.symptoms?`<div class="ds"><div class="dst">Symptoms</div>${tl(d.symptoms)}</div>`:''}
-    ${d.comments?`<div class="ds"><div class="dst">Comments</div><p style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:#374151;">${escapeHtml(d.comments)}</p></div>`:''}
+    ${d.comments?`<div class="ds"><div class="dst">Comments</div><p style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:#374151;white-space:pre-wrap;">${escapeHtml(d.comments)}</p></div>`:''}
   `;
 
   const footer = document.getElementById('modal-footer');
@@ -997,7 +1222,10 @@ window.viewProfile = async function(userId) {
         ⚠ Delete Permanently
       </button>
     </div>
-    <button class="btn-modal-close" onclick="closeDetailModal()">Close</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-modal-close" style="background:var(--teal);color:#fff;border-color:var(--teal);" onclick="adminEditProfile('${userId}')">✏️ Edit Details</button>
+      <button class="btn-modal-close" onclick="closeDetailModal()">Close</button>
+    </div>
   `;
 
   document.getElementById('detail-modal').classList.add('open');
@@ -1075,6 +1303,214 @@ window.closeDetailModal = function() {
 document.getElementById('detail-modal').addEventListener('click', function(e) {
   if (e.target === this) closeDetailModal();
 });
+
+// ─── ADMIN EDIT PROFILE ───────────────────────────────────
+window.adminEditProfile = function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) return;
+
+  const body = document.getElementById('modal-body');
+  const footer = document.getElementById('modal-footer');
+
+  const fi = (id, label, val, type='text') => `
+    <div class="fg" style="margin-bottom:10px;">
+      <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;display:block;">${escapeHtml(label)}</label>
+      <input type="${type}" id="ae-${id}" value="${escapeHtml(val||'')}" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;background:#fff;outline:none;font-family:inherit;width:100%;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'"/>
+    </div>`;
+
+  const fta = (id, label, val) => `
+    <div class="fg" style="margin-bottom:10px;">
+      <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;display:block;">${escapeHtml(label)}</label>
+      <textarea id="ae-${id}" rows="2" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;background:#fff;outline:none;font-family:inherit;width:100%;resize:vertical;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'">${escapeHtml(val||'')}</textarea>
+    </div>`;
+
+  const fsel = (id, label, val, options) => `
+    <div class="fg" style="margin-bottom:10px;">
+      <label style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;display:block;">${escapeHtml(label)}</label>
+      <select id="ae-${id}" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;background:#fff;outline:none;font-family:inherit;width:100%;">
+        ${options.map(o => `<option value="${escapeHtml(o)}" ${val===o?'selected':''}>${escapeHtml(o)}</option>`).join('')}
+      </select>
+    </div>`;
+
+  body.innerHTML = `
+    <div style="background:var(--teal-light);border:1.5px solid #c8ede9;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--teal-dark);font-weight:600;">
+      ✏️ Editing: <strong>${escapeHtml(d.name||userId)}</strong> — changes will be saved to Firestore and the user will see an "Admin updated" notice on their profile.
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--teal);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--teal-light);">Personal Info</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;">
+      ${fi('name','Name',d.name)}
+      ${fi('age','Age',d.age,'number')}
+      ${fsel('gender','Gender',d.gender,['','Male','Female','Other'])}
+      ${fi('height_cm','Height (cm)',d.height_cm,'number')}
+      ${fi('weight_kg','Weight (kg)',d.weight_kg,'number')}
+      ${fi('waist_cm','Waist (cm)',d.waist_cm,'number')}
+      ${fi('neck_cm','Neck (cm)',d.neck_cm,'number')}
+      ${fi('hip_cm','Hip (cm)',d.hip_cm,'number')}
+      ${fi('phone','Phone',d.phone,'tel')}
+      ${fi('email','Email',d.email,'email')}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--teal);margin:14px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--teal-light);">📊 BMI &amp; Weight Results</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;">
+      ${fi('bmi','BMI',d.bmi)}
+      ${fi('bmi_category','BMI Category',d.bmi_category)}
+      ${fi('ideal_weight','Ideal Weight (kg)',d.ideal_weight)}
+      ${fi('ideal_range','Ideal Range (e.g. 55–74 kg)',d.ideal_range)}
+      ${fi('target_weight','Target Weight (kg)',d.target_weight)}
+      ${fi('weight_change','Weight to Change (kg)',d.weight_change)}
+      ${fsel('weight_direction','Weight Direction',d.weight_direction,['','loss','gain','maintain'])}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--teal);margin:14px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--teal-light);">🔥 Calorie Breakdown</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;">
+      ${fi('bmr','BMR (kcal/day)',d.bmr,'number')}
+      ${fi('maintenance_calories','Maintenance Calories (kcal)',d.maintenance_calories,'number')}
+      ${fi('daily_calories','Daily Calorie Target (kcal)',d.daily_calories,'number')}
+      ${fi('after_goal_calories','After-Goal Maintenance (kcal)',d.after_goal_calories,'number')}
+      ${fi('timeline_days','Timeline to Goal (days)',d.timeline_days,'number')}
+      ${fi('timeline_label','Timeline Label (e.g. 2 months 3 weeks)',d.timeline_label)}
+      ${fi('goal_rate','Goal Rate (kg/week, e.g. 0.5)',d.goal_rate)}
+      ${fi('goal_rate_label','Goal Rate Label (e.g. Standard Loss)',d.goal_rate_label)}
+      ${fi('goal_statement','Goal Statement',d.goal_statement)}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--teal);margin:14px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--teal-light);">🧬 Body Fat</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;">
+      ${fi('body_fat','Body Fat %',d.body_fat)}
+      ${fi('body_fat_category','Body Fat Category',d.body_fat_category)}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--teal);margin:14px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--teal-light);">Diet &amp; Health</div>
+    ${fsel('diet_preference','Diet Preference',d.diet_preference,['','Vegetarian','Non-Vegetarian','Vegan','Eggetarian','Balanced'])}
+    ${fi('eating_window','Eating Window',d.eating_window)}
+    ${fi('num_curries','Curries Per Day',d.num_curries,'number')}
+    ${fta('meal_types','Meal Types (comma-separated)',d.meal_types)}
+    ${fta('health_conditions','Health Conditions (comma-separated)',d.health_conditions)}
+    ${fta('allergies','Allergies',d.allergies)}
+    ${fta('symptoms','Symptoms (comma-separated)',d.symptoms)}
+    ${fta('food_dislikes','Food Dislikes',d.food_dislikes)}
+    ${fta('comments','Comments / Notes',d.comments)}
+    <div id="ae-save-err" style="display:none;color:var(--red);font-size:12px;margin-top:8px;padding:8px 12px;background:var(--red-light);border-radius:8px;"></div>
+  `;
+
+  footer.innerHTML = `
+    <div class="modal-footer-left">
+      <button class="btn-del-submission" onclick="viewProfile('${userId}')">← Back</button>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div id="ae-saving" style="display:none;font-size:13px;color:var(--teal);font-weight:600;align-self:center;">Saving…</div>
+      <button class="btn-modal-close" style="background:var(--teal);color:#fff;border-color:var(--teal);" onclick="adminSaveProfileEdits('${userId}')">💾 Save Changes</button>
+      <button class="btn-modal-close" onclick="closeDetailModal()">Cancel</button>
+    </div>
+  `;
+};
+
+window.adminSaveProfileEdits = async function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) return;
+
+  const gv = id => { const el = document.getElementById('ae-'+id); return el ? el.value.trim() : undefined; };
+  const errEl = document.getElementById('ae-save-err');
+  const savingEl = document.getElementById('ae-saving');
+  if (errEl) errEl.style.display = 'none';
+  if (savingEl) savingEl.style.display = 'inline-block';
+
+  const updates = {
+    name:                 gv('name'),
+    age:                  gv('age'),
+    gender:               gv('gender'),
+    height_cm:            gv('height_cm'),
+    weight_kg:            gv('weight_kg'),
+    waist_cm:             gv('waist_cm'),
+    neck_cm:              gv('neck_cm'),
+    hip_cm:               gv('hip_cm'),
+    phone:                gv('phone'),
+    email:                gv('email'),
+    // BMI & Weight
+    bmi:                  gv('bmi'),
+    bmi_category:         gv('bmi_category'),
+    ideal_weight:         gv('ideal_weight'),
+    ideal_range:          gv('ideal_range'),
+    target_weight:        gv('target_weight'),
+    weight_change:        gv('weight_change'),
+    weight_direction:     gv('weight_direction'),
+    // Calories
+    bmr:                  gv('bmr'),
+    maintenance_calories: gv('maintenance_calories'),
+    daily_calories:       gv('daily_calories'),
+    after_goal_calories:  gv('after_goal_calories'),
+    timeline_days:        gv('timeline_days'),
+    timeline_label:       gv('timeline_label'),
+    goal_rate:            gv('goal_rate'),
+    goal_rate_label:      gv('goal_rate_label'),
+    goal_statement:       gv('goal_statement'),
+    // Body fat
+    body_fat:             gv('body_fat'),
+    body_fat_category:    gv('body_fat_category'),
+    // Diet
+    diet_preference:      gv('diet_preference'),
+    eating_window:        gv('eating_window'),
+    num_curries:          gv('num_curries'),
+    meal_types:           gv('meal_types'),
+    health_conditions:    gv('health_conditions'),
+    allergies:            gv('allergies'),
+    symptoms:             gv('symptoms'),
+    food_dislikes:        gv('food_dislikes'),
+    comments:             gv('comments'),
+    adminUpdatedAt:       serverTimestamp(),
+    adminUpdatedBy:       auth.currentUser?.email || 'admin',
+  };
+
+  // Remove undefined keys
+  Object.keys(updates).forEach(k => { if (updates[k] === undefined) delete updates[k]; });
+
+  try {
+    await setDoc(doc(db, "submissions", userId), updates, { merge: true });
+
+    // Also update the profile doc in all matching accounts so the chip shows the admin-updated dot
+    if (d.accountUid) {
+      try {
+        const profileDocId = d._profileDocId || userId;
+        await setDoc(doc(db, "accounts", d.accountUid, "profiles", profileDocId), {
+          adminUpdatedAt: serverTimestamp(),
+          name: updates.name || d.name,
+        }, { merge: true });
+      } catch(e) { console.warn('Could not update profile doc:', e); }
+    } else {
+      // Try to find account by scanning accountsData
+      for (const acct of accountsData) {
+        const pDoc = acct.profiles.find(p => (p.userId || p._profileDocId) === userId);
+        if (pDoc) {
+          try {
+            await setDoc(doc(db, "accounts", acct.uid, "profiles", pDoc._profileDocId || userId), {
+              adminUpdatedAt: serverTimestamp(),
+              name: updates.name || d.name,
+            }, { merge: true });
+          } catch(e) {}
+          break;
+        }
+      }
+    }
+
+    // Update local data store
+    allSubmissions[userId] = { ...d, ...updates };
+
+    if (savingEl) savingEl.style.display = 'none';
+    // Show success then reopen profile view
+    const footer = document.getElementById('modal-footer');
+    if (footer) {
+      const ok = document.createElement('div');
+      ok.style.cssText = 'font-size:13px;color:#065f46;background:#ecfdf5;padding:8px 14px;border-radius:8px;font-weight:600;';
+      ok.textContent = '✅ Profile updated successfully!';
+      footer.prepend(ok);
+      setTimeout(() => { viewProfile(userId); }, 1500);
+    }
+  } catch(e) {
+    if (savingEl) savingEl.style.display = 'none';
+    if (errEl) { errEl.textContent = 'Error saving: ' + e.message; errEl.style.display = 'block'; }
+  }
+};
 
 // ─── MESSAGES ─────────────────────────────────────────────
 let allMessages = [];
@@ -1498,6 +1934,121 @@ window.deleteCommentReply = async function(commentId, replyId) {
   } catch(e) { alert('Error: ' + e.message); }
 };
 
+// ─── EXCEL DOWNLOAD HELPERS ───────────────────────────────
+
+// All fields we capture, in display order
+const PROFILE_FIELDS = [
+  ['userId',              'User ID'],
+  ['timestamp',           'Submitted'],
+  ['name',                'Name'],
+  ['age',                 'Age'],
+  ['gender',              'Gender'],
+  ['height_cm',           'Height (cm)'],
+  ['weight_kg',           'Weight (kg)'],
+  ['activity',            'Activity Level'],
+  ['waist_cm',            'Waist (cm)'],
+  ['hip_cm',              'Hip (cm)'],
+  ['neck_cm',             'Neck (cm)'],
+  ['pregnant_lactating',  'Pregnant / Lactating'],
+  ['phone',               'Phone'],
+  ['email',               'Email'],
+  ['bmi',                 'BMI'],
+  ['bmi_category',        'BMI Category'],
+  ['body_fat',            'Body Fat %'],
+  ['body_fat_category',   'Body Fat Category'],
+  ['bmr',                 'BMR (kcal/day)'],
+  ['maintenance_calories','Maintenance Calories'],
+  ['daily_calories',      'Daily Calorie Target'],
+  ['ideal_weight',        'Ideal Weight (kg)'],
+  ['ideal_range',         'Ideal Weight Range'],
+  ['target_weight',       'Target Weight (kg)'],
+  ['weight_change',       'Weight to Change'],
+  ['goal_rate',           'Goal Rate (kg/wk)'],
+  ['goal_rate_label',     'Goal Rate Label'],
+  ['timeline_days',       'Timeline (days)'],
+  ['timeline_label',      'Timeline Label'],
+  ['health_conditions',   'Health Conditions'],
+  ['allergies',           'Allergies'],
+  ['diet_preference',     'Diet Preference'],
+  ['meals_per_day',       'Meals Per Day'],
+  ['num_curries',         'Curries Per Day'],
+  ['meal_types',          'Meal Types'],
+  ['eating_window',       'Eating Window'],
+  ['morning_drinks',      'Morning Drinks'],
+  ['nuts_seeds',          'Nuts & Seeds'],
+  ['fruits',              'Fruits'],
+  ['vegetables',          'Vegetables'],
+  ['food_dislikes',       'Food Dislikes'],
+  ['symptoms',            'Symptoms'],
+  ['comments',            'Comments'],
+  ['whatsapp_consent',    'WhatsApp Consent'],
+  ['accountUid',          'Account UID'],
+  ['forSelf',             'For Self?'],
+  ['relName',             'Member Name'],
+  ['relation',            'Relation'],
+];
+
+function safeVal(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+  if (v && typeof v === 'object' && v.seconds) return new Date(v.seconds * 1000).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  return String(v);
+}
+
+// Download single profile — VERTICAL layout (Field | Value)
+window.downloadProfileExcel = function(userId) {
+  const d = allSubmissions[userId];
+  if (!d) { alert('Profile not found'); return; }
+
+  const wb = XLSX.utils.book_new();
+  const rows = [['Field', 'Value']];
+  for (const [key, label] of PROFILE_FIELDS) {
+    rows.push([label, safeVal(d[key])]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Column widths
+  ws['!cols'] = [{ wch: 28 }, { wch: 48 }];
+
+  // Style header row (SheetJS CE doesn't support cell styles, but we set freeze)
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Profile');
+
+  const fileName = `NutriPlan_${(d.name || 'Profile').replace(/\s+/g, '_')}_${userId.slice(0,6)}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+};
+
+// Download ALL active profiles — HORIZONTAL layout (one row per profile)
+window.downloadAllProfiles = function() {
+  const activeProfiles = Object.values(allSubmissions).filter(s => !s.deletedByUser);
+  if (activeProfiles.length === 0) { alert('No active profiles to download.'); return; }
+
+  const headers = PROFILE_FIELDS.map(([, label]) => label);
+  const rows = [headers];
+
+  for (const d of activeProfiles) {
+    rows.push(PROFILE_FIELDS.map(([key]) => safeVal(d[key])));
+  }
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Auto column widths based on content
+  const colWidths = headers.map((h, ci) => {
+    const maxLen = rows.reduce((m, r) => Math.max(m, String(r[ci] || '').length), h.length);
+    return { wch: Math.min(maxLen + 2, 50) };
+  });
+  ws['!cols'] = colWidths;
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+  XLSX.utils.book_append_sheet(wb, ws, 'All Profiles');
+
+  const ts = new Date().toLocaleDateString('en-IN').replace(/\//g, '-');
+  XLSX.writeFile(wb, `NutriPlan_AllProfiles_${ts}.xlsx`);
+};
+
 window.deleteComment = async function(id) {
   if (!confirm('Permanently delete this comment?')) return;
   try {
@@ -1521,5 +2072,6 @@ function formatTs(ts) {
 }
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
