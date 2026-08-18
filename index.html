@@ -716,7 +716,7 @@ window.toggleAcct = function(header) {
 
 function buildProfileRow(profile, submission, isDeleted) {
   const userId = profile.userId || profile._id;
-  const isForOther = (profile.forSelf === false) || (submission.plan_for_self === false);
+  const isForOther = (profile.forSelf === false) || (submission.plan_for_self === false) || (submission.plan_for === 'Other');
   const displayName = isForOther ? (profile.relName || submission.relName || submission.name) : (profile.name || submission.name);
   const initials = (displayName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const timestamp = submission.timestamp || profile.timestamp || '—';
@@ -761,7 +761,7 @@ function renderDeleted() {
   area.innerHTML = `<div class="orphan-list">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--red);margin-bottom:12px;">🗑️ Profiles Deleted by Users (${filtered.length})</div>
     ${filtered.map(d => {
-      const isForOther = d.plan_for_self === false;
+      const isForOther = d.plan_for_self === false || d.plan_for === 'Other';
       const displayName = isForOther ? (d.plan_other_name||d.name) : d.name;
       const initials = (displayName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
       const delAt = d.deletedAt ? formatTs(d.deletedAt) : '—';
@@ -801,7 +801,7 @@ function renderOrphans() {
   area.innerHTML = `<div class="orphan-list">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--amber);margin-bottom:12px;">⚠️ Submissions Without Account (${filtered.length})</div>
     ${filtered.map(d => {
-      const isForOther = d.plan_for_self === false;
+      const isForOther = d.plan_for_self === false || d.plan_for === 'Other';
       const displayName = isForOther ? (d.plan_other_name||d.name) : d.name;
       const initials = (displayName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
       return `
@@ -1081,9 +1081,175 @@ window.executeDeleteAccount = async function() {
 // ─── VIEW PROFILE MODAL ───────────────────────────────────
 let _modalUserId = null;
 
+// ─── ACTIVITY LEVEL LABELS ─────────────────────────────────
+// The assessment form only ever saved the numeric activity factor (e.g. "1.375")
+// under activity_level, not the descriptive text the user actually picked from
+// the dropdown ("Lightly Active — Exercise 1–3 days/week…"). Newer submissions
+// also carry activity_level_label (added to index.html/in__.html) with the full
+// text; for older records we reconstruct the short label from the factor.
+const ACTIVITY_LABELS = {
+  '1.2':   'Sedentary — Little or no exercise (desk job, mostly sitting all day)',
+  '1.375': 'Lightly Active — Exercise 1–3 days/week (light walks, gentle yoga, weekend activity)',
+  '1.46':  'Moderately Active — Exercise 4–5 days/week (brisk walk daily, cycling, light gym)',
+  '1.55':  'Active — Daily exercise or intense training 3–4 days/week (gym workouts, jogging, sports)',
+  '1.72':  'Very Active — Intense exercise 6–7 days/week (heavy gym, running, athletic training)',
+  '1.9':   'Extremely Active — Very intense daily exercise + physical job (manual labour, pro athlete)',
+};
+
+// ─── WEEKLY EATING RULES FORMATTER ─────────────────────────
+// Turns the stored weekend_eating_rules object ({ Mon: { rules, custom, repeat,
+// lightDinnerOpts }, ... }) into one readable line per day, e.g.
+// "Saturday: Light Dinner (Tiffins, Milk) (repeats weekly)".
+const WER_DAY_ORDER = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WER_DAY_FULL = { Mon:'Monday', Tue:'Tuesday', Wed:'Wednesday', Thu:'Thursday', Fri:'Friday', Sat:'Saturday', Sun:'Sunday' };
+function werToLines(wer) {
+  if (!wer || typeof wer !== 'object') return [];
+  return WER_DAY_ORDER.filter(day => wer[day]).map(day => {
+    const dd = wer[day] || {};
+    const rules = Array.isArray(dd.rules) ? dd.rules : [];
+    const parts = rules.map(r => {
+      if (r === 'Light Dinner' && Array.isArray(dd.lightDinnerOpts) && dd.lightDinnerOpts.length) {
+        return `Light Dinner (${dd.lightDinnerOpts.join(', ')})`;
+      }
+      if (r === 'Custom' && dd.custom) {
+        return `Custom: "${dd.custom}"`;
+      }
+      return r;
+    });
+    let line = `${WER_DAY_FULL[day] || day}: ${parts.join(', ') || '—'}`;
+    if (dd.repeat === 'yes') line += ' (repeats weekly)';
+    else if (dd.repeat === 'no') line += ' (this week only)';
+    return line;
+  });
+}
+
+// ─── NORMALIZE SUBMISSION DATA ────────────────────────────
+// The assessment form (index.html / in__.html) saves fields under short
+// names: height, weight, waist, neck, hip, activity_level, pregnancy_status,
+// goal_calories, goal_direction, weight_to_goal, nuts, seeds, plan_for, etc.
+// This admin UI was originally built against an older schema that used
+// height_cm, weight_kg, waist_cm, neck_cm, hip_cm, activity, pregnant_lactating,
+// daily_calories, weight_direction, weight_change, target_weight, ideal_range,
+// goal_rate_label, body_fat_category, nuts_seeds, plan_for_self, bmr,
+// maintenance_calories, etc. Because those old keys are never written by the
+// current form, the admin detail view showed a lot of blank ("—") fields even
+// though the data was actually saved.
+//
+// normalizeSubmission() bridges the two schemas: it reads whichever key is
+// present, and — mirroring the fallback/derivation logic already used
+// successfully in profile.html — computes any values that were never stored
+// at all (BMR, maintenance calories, body-fat category, ideal-weight range,
+// goal-rate label, etc.) from the raw inputs. It never mutates the original
+// record; it returns a shallow-merged copy for display/editing only.
+function normalizeSubmission(raw) {
+  if (!raw) return raw;
+  const d = { ...raw };
+  const isMiss = v => v === undefined || v === null || String(v).trim() === '' || String(v).trim() === '-';
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+
+  // ── Direct field aliases (old-schema-key -> current-schema-key) ──
+  if (isMiss(d.height_cm) && !isMiss(d.height)) d.height_cm = d.height;
+  if (isMiss(d.weight_kg) && !isMiss(d.weight)) d.weight_kg = d.weight;
+  if (isMiss(d.waist_cm) && !isMiss(d.waist)) d.waist_cm = d.waist;
+  if (isMiss(d.neck_cm) && !isMiss(d.neck)) d.neck_cm = d.neck;
+  if (isMiss(d.hip_cm) && !isMiss(d.hip) && d.hip !== 'N/A') d.hip_cm = d.hip;
+  if (isMiss(d.activity) && !isMiss(d.activity_level)) d.activity = d.activity_level;
+  if (isMiss(d.pregnant_lactating) && !isMiss(d.pregnancy_status)) d.pregnant_lactating = d.pregnancy_status;
+  if (isMiss(d.daily_calories) && !isMiss(d.goal_calories)) d.daily_calories = d.goal_calories;
+  if (isMiss(d.weight_direction) && !isMiss(d.goal_direction)) d.weight_direction = d.goal_direction;
+  if (isMiss(d.weight_change) && !isMiss(d.weight_to_goal)) d.weight_change = String(d.weight_to_goal).replace(/\s*kg\s*$/i, '').trim();
+  if (isMiss(d.goal_rate) && !isMiss(d.goal_rate_kg_per_week)) d.goal_rate = d.goal_rate_kg_per_week;
+  if (typeof d.plan_for_self !== 'boolean') d.plan_for_self = !(d.plan_for === 'Other' || d.forSelf === false);
+  if (isMiss(d.nuts_seeds) && (!isMiss(d.nuts) || !isMiss(d.seeds))) {
+    d.nuts_seeds = [d.nuts, d.seeds].filter(v => !isMiss(v)).join(', ');
+  }
+
+  // ── Derived/computed values (only when not already present) ──
+  const wt = num(d.weight_kg), ht = num(d.height_cm), age = num(d.age);
+  const gender = (d.gender || '').toLowerCase();
+  const actTxt = (d.activity || '').trim();
+  const actFactor = num(d.activity_factor) || (() => {
+    if (/sedentary/i.test(actTxt)) return 1.2;
+    if (/lightly/i.test(actTxt)) return 1.375;
+    if (/moderately/i.test(actTxt)) return 1.46;
+    if (/\bactive\b/i.test(actTxt) && !/very|extra|extremely/i.test(actTxt)) return 1.55;
+    if (/very active/i.test(actTxt)) return 1.72;
+    if (/extremely|extra active/i.test(actTxt)) return 1.9;
+    return 1.2;
+  })();
+
+  if (isMiss(d.ideal_weight) && ht > 0) {
+    const h2 = ht / 100;
+    const minW = 18.5 * h2 * h2, maxW = 24.9 * h2 * h2;
+    d.ideal_weight = ((minW + maxW) / 2).toFixed(1);
+    if (isMiss(d.ideal_range)) d.ideal_range = minW.toFixed(1) + '–' + maxW.toFixed(1) + ' kg';
+  }
+  if (isMiss(d.target_weight) && !isMiss(d.ideal_weight)) d.target_weight = d.ideal_weight;
+
+  if (isMiss(d.body_fat)) {
+    const waistCm = num(d.waist_cm), neckCm = num(d.neck_cm), hipCm = num(d.hip_cm);
+    const isFemale = gender === 'female';
+    if (waistCm > 0 && neckCm > 0 && ht > 0 && (!isFemale || hipCm > 0)) {
+      let bfp = null;
+      if (isFemale && waistCm + hipCm - neckCm > neckCm) {
+        bfp = (495 / (1.29579 - 0.35004 * Math.log10(waistCm + hipCm - neckCm) + 0.22100 * Math.log10(ht))) - 450;
+      } else if (!isFemale && waistCm - neckCm > 0) {
+        bfp = (495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(ht))) - 450;
+      }
+      if (bfp !== null && bfp > 0 && bfp < 60) {
+        d.body_fat = bfp.toFixed(1);
+        d.body_fat_category = isFemale
+          ? (bfp < 14 ? 'Essential Fat' : bfp < 21 ? 'Athletic' : bfp < 25 ? 'Fitness' : bfp < 32 ? 'Average' : 'Obese')
+          : (bfp < 6 ? 'Essential Fat' : bfp < 14 ? 'Athletic' : bfp < 18 ? 'Fitness' : bfp < 25 ? 'Average' : 'Obese');
+      }
+    }
+  } else if (isMiss(d.body_fat_category) && !isMiss(d.body_fat)) {
+    const bfp = num(d.body_fat), isFemale = gender === 'female';
+    d.body_fat_category = isFemale
+      ? (bfp < 14 ? 'Essential Fat' : bfp < 21 ? 'Athletic' : bfp < 25 ? 'Fitness' : bfp < 32 ? 'Average' : 'Obese')
+      : (bfp < 6 ? 'Essential Fat' : bfp < 14 ? 'Athletic' : bfp < 18 ? 'Fitness' : bfp < 25 ? 'Average' : 'Obese');
+  }
+
+  if ((isMiss(d.bmr) || isMiss(d.maintenance_calories) || isMiss(d.daily_calories)) && wt > 0 && ht > 0 && age > 0) {
+    const bmrC = gender === 'female' ? (10 * wt) + (6.25 * ht) - (5 * age) - 161 : (10 * wt) + (6.25 * ht) - (5 * age) + 5;
+    const maintC = Math.round(bmrC * actFactor);
+    if (isMiss(d.bmr)) d.bmr = String(Math.round(bmrC));
+    if (isMiss(d.maintenance_calories)) d.maintenance_calories = String(maintC);
+    if (isMiss(d.daily_calories)) {
+      const iw = num(d.ideal_weight) || wt;
+      const dir = d.weight_direction || (Math.abs(wt - iw) < 0.5 ? 'maintain' : wt > iw ? 'loss' : 'gain');
+      const rate = num(d.goal_rate) || 0.5;
+      const adj = rate === 0.25 ? 250 : rate === 0.5 ? 500 : 1000;
+      const gc = dir === 'loss' ? maintC - adj : dir === 'gain' ? maintC + adj : maintC;
+      d.daily_calories = String(Math.max(1000, gc));
+    }
+  }
+
+  if (isMiss(d.goal_rate_label) && !isMiss(d.goal_rate)) {
+    const dir = d.weight_direction || '';
+    d.goal_rate_label = (dir === 'loss' ? 'Weight Loss' : dir === 'gain' ? 'Weight Gain' : 'Maintenance') + ' · ' + d.goal_rate + ' kg/wk';
+  }
+
+  // Full activity-level text: prefer the explicit label saved by the form,
+  // otherwise reconstruct it from the numeric factor, otherwise fall back to
+  // whatever raw value is there.
+  if (!isMiss(d.activity_level_label)) {
+    d.activity_label = d.activity_level_label;
+  } else {
+    const key = String(d.activity_level || d.activity || '').trim();
+    d.activity_label = ACTIVITY_LABELS[key] || (isMiss(d.activity) ? '' : d.activity);
+  }
+
+  // Flattened, human-readable text for the weekly eating rules (used by Excel export).
+  d.weekend_eating_rules_text = werToLines(d.weekend_eating_rules).join(' | ');
+
+  return d;
+}
+
 window.viewProfile = async function(userId) {
-  const d = allSubmissions[userId];
-  if (!d) { alert('Profile not found'); return; }
+  const raw = allSubmissions[userId];
+  if (!raw) { alert('Profile not found'); return; }
+  const d = normalizeSubmission(raw);
   _modalUserId = userId;
 
   document.getElementById('modal-title').textContent = d.name || 'Profile Details';
@@ -1156,6 +1322,7 @@ window.viewProfile = async function(userId) {
       ${d.updatedAt ? row('Last Resubmitted', formatTs(d.updatedAt)) : ''}
       ${row('Account UID', d.accountUid || '(none)')}
       ${isForOther ? row('Plan For', escapeHtml(d.plan_other_name||'')+(d.plan_other_relation?' ('+d.plan_other_relation+')':'')) : row('Plan For', 'Self')}
+      ${row('WhatsApp Consent', d.whatsapp_consent === 'Yes' ? '✅ Yes' : d.whatsapp_consent === 'No' ? '❌ No' : '—')}
     </div>
     <div class="ds">
       <div class="dst">Personal Info</div>
@@ -1167,7 +1334,7 @@ window.viewProfile = async function(userId) {
       ${row('Waist', d.waist_cm?escapeHtml(d.waist_cm)+' cm':'')}
       ${row('Neck', d.neck_cm?escapeHtml(d.neck_cm)+' cm':'')}
       ${d.hip_cm?row('Hip',escapeHtml(d.hip_cm)+' cm'):''}
-      ${row('Activity', escapeHtml(d.activity||''))}
+      ${row('Activity', escapeHtml(d.activity_label||d.activity||''))}
       ${d.pregnant_lactating&&d.pregnant_lactating!=='No'?row('Pregnant/Lactating',escapeHtml(d.pregnant_lactating)):''}
       ${d.phone?row('Phone', escapeHtml(d.phone)):''}
       ${d.email?row('Email', escapeHtml(d.email)):''}
@@ -1176,6 +1343,7 @@ window.viewProfile = async function(userId) {
       <div class="dst">Health</div>
       <div class="dr"><span class="dk">Conditions</span><span class="dv">${tl(d.health_conditions)}</span></div>
       ${d.allergies?`<div class="dr"><span class="dk">Allergies</span><span class="dv">${tl(d.allergies)}</span></div>`:''}
+      ${d.symptoms?`<div class="dr"><span class="dk">Symptoms</span><span class="dv">${tl(d.symptoms)}</span></div>`:''}
     </div>
     <div class="ds">
       <div class="dst">Diet Preferences</div>
@@ -1184,6 +1352,14 @@ window.viewProfile = async function(userId) {
       ${row('Eating Window', escapeHtml(d.eating_window||''))}
       <div class="dr"><span class="dk">Meal Types</span><span class="dv">${tl(d.meal_types)}</span></div>
     </div>
+    ${(() => {
+      const werLines = werToLines(d.weekend_eating_rules);
+      if (!werLines.length) return '';
+      return `<div class="ds">
+        <div class="dst">📅 Weekly Eating Rules</div>
+        ${werLines.map(line => `<div class="dr" style="display:block;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px;color:#374151;">${escapeHtml(line)}</div>`).join('')}
+      </div>`;
+    })()}
     <div class="ds">
       <div class="dst">Food Preferences</div>
       ${d.morning_drinks?`<div class="dr"><span class="dk">Morning Drinks</span><span class="dv">${tl(d.morning_drinks)}</span></div>`:''}
@@ -1202,7 +1378,6 @@ window.viewProfile = async function(userId) {
       ${d.millets_grains?`<div class="dr"><span class="dk">Millets &amp; Grains</span><span class="dv">${tl(d.millets_grains)}</span></div>`:''}
       ${d.food_dislikes?`<div class="dr"><span class="dk">Food Dislikes</span><span class="dv" style="color:#dc2626;">${escapeHtml(d.food_dislikes)}</span></div>`:''}
     </div>
-    ${d.symptoms?`<div class="ds"><div class="dst">Symptoms</div>${tl(d.symptoms)}</div>`:''}
     ${d.comments?`<div class="ds"><div class="dst">Comments</div><p style="background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13px;color:#374151;white-space:pre-wrap;">${escapeHtml(d.comments)}</p></div>`:''}
   `;
 
@@ -1306,8 +1481,9 @@ document.getElementById('detail-modal').addEventListener('click', function(e) {
 
 // ─── ADMIN EDIT PROFILE ───────────────────────────────────
 window.adminEditProfile = function(userId) {
-  const d = allSubmissions[userId];
-  if (!d) return;
+  const raw = allSubmissions[userId];
+  if (!raw) return;
+  const d = normalizeSubmission(raw); // so pre-filled inputs show existing values saved under the current form's field names
 
   const body = document.getElementById('modal-body');
   const footer = document.getElementById('modal-footer');
@@ -1945,7 +2121,7 @@ const PROFILE_FIELDS = [
   ['gender',              'Gender'],
   ['height_cm',           'Height (cm)'],
   ['weight_kg',           'Weight (kg)'],
-  ['activity',            'Activity Level'],
+  ['activity_label',      'Activity Level'],
   ['waist_cm',            'Waist (cm)'],
   ['hip_cm',              'Hip (cm)'],
   ['neck_cm',             'Neck (cm)'],
@@ -1974,6 +2150,7 @@ const PROFILE_FIELDS = [
   ['num_curries',         'Curries Per Day'],
   ['meal_types',          'Meal Types'],
   ['eating_window',       'Eating Window'],
+  ['weekend_eating_rules_text', 'Weekly Eating Rules'],
   ['morning_drinks',      'Morning Drinks'],
   ['nuts_seeds',          'Nuts & Seeds'],
   ['fruits',              'Fruits'],
@@ -1997,8 +2174,9 @@ function safeVal(v) {
 
 // Download single profile — VERTICAL layout (Field | Value)
 window.downloadProfileExcel = function(userId) {
-  const d = allSubmissions[userId];
-  if (!d) { alert('Profile not found'); return; }
+  const raw = allSubmissions[userId];
+  if (!raw) { alert('Profile not found'); return; }
+  const d = normalizeSubmission(raw);
 
   const wb = XLSX.utils.book_new();
   const rows = [['Field', 'Value']];
@@ -2028,7 +2206,8 @@ window.downloadAllProfiles = function() {
   const headers = PROFILE_FIELDS.map(([, label]) => label);
   const rows = [headers];
 
-  for (const d of activeProfiles) {
+  for (const raw of activeProfiles) {
+    const d = normalizeSubmission(raw);
     rows.push(PROFILE_FIELDS.map(([key]) => safeVal(d[key])));
   }
 
